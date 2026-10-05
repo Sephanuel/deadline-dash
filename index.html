@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+                   maximum-scale=1.0, user-scalable=no">
 
     <title>Deadline Dash</title>
 
@@ -12,7 +14,14 @@
 <body>
 
     <div id="game-container">
+
         <canvas id="gameCanvas"></canvas>
+
+        <!-- Mobile joystick -->
+        <div id="joystick">
+            <div id="joystick-knob"></div>
+        </div>
+
     </div>
 
     <script src="game.js"></script>
