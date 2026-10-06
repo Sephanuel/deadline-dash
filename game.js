@@ -5,7 +5,7 @@ const joystick = document.getElementById("joystick");
 const joystickKnob = document.getElementById("joystick-knob");
 
 // ==================================================
-// FIXED GAME VIEW
+// GAME SETTINGS
 // ==================================================
 
 const VIEW_WIDTH = 900;
@@ -14,7 +14,6 @@ const VIEW_HEIGHT = 600;
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
 
-// Canvas drawing resolution NEVER changes.
 canvas.width = VIEW_WIDTH;
 canvas.height = VIEW_HEIGHT;
 
@@ -45,7 +44,7 @@ const camera = {
 };
 
 // ==================================================
-// RESPONSIVE DISPLAY
+// DISPLAY
 // ==================================================
 
 function resizeGame() {
@@ -53,24 +52,21 @@ function resizeGame() {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
-    // Scale the fixed 900x600 game view
-    // enough to cover the entire screen.
-    const scale = Math.max(
+    /*
+     * Scale the game uniformly.
+     * The game itself always remains 900 x 600.
+     */
+
+    const scale = Math.min(
         screenWidth / VIEW_WIDTH,
         screenHeight / VIEW_HEIGHT
     );
 
-    const displayWidth =
-        VIEW_WIDTH * scale;
-
-    const displayHeight =
-        VIEW_HEIGHT * scale;
-
     canvas.style.width =
-        `${displayWidth}px`;
+        `${VIEW_WIDTH * scale}px`;
 
     canvas.style.height =
-        `${displayHeight}px`;
+        `${VIEW_HEIGHT * scale}px`;
 }
 
 window.addEventListener(
@@ -92,6 +88,8 @@ const input = {
 };
 
 let joystickActive = false;
+
+// Keyboard
 
 window.addEventListener("keydown", (event) => {
 
@@ -157,4 +155,364 @@ function updateJoystick(clientX, clientY) {
         joystick.getBoundingClientRect();
 
     const centerX =
-       
+        rect.left + rect.width / 2;
+
+    const centerY =
+        rect.top + rect.height / 2;
+
+    let dx =
+        clientX - centerX;
+
+    let dy =
+        clientY - centerY;
+
+    const distance =
+        Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > joystickRadius) {
+
+        dx =
+            (dx / distance) *
+            joystickRadius;
+
+        dy =
+            (dy / distance) *
+            joystickRadius;
+    }
+
+    joystickKnob.style.transform =
+        `translate(
+            calc(-50% + ${dx}px),
+            calc(-50% + ${dy}px)
+        )`;
+
+    input.x =
+        dx / joystickRadius;
+
+    input.y =
+        dy / joystickRadius;
+}
+
+function resetJoystick() {
+
+    joystickActive = false;
+
+    input.x = 0;
+    input.y = 0;
+
+    joystickKnob.style.transform =
+        "translate(-50%, -50%)";
+}
+
+joystick.addEventListener(
+    "pointerdown",
+    (event) => {
+
+        joystickActive = true;
+
+        joystick.setPointerCapture(
+            event.pointerId
+        );
+
+        updateJoystick(
+            event.clientX,
+            event.clientY
+        );
+    }
+);
+
+joystick.addEventListener(
+    "pointermove",
+    (event) => {
+
+        if (!joystickActive) {
+            return;
+        }
+
+        updateJoystick(
+            event.clientX,
+            event.clientY
+        );
+    }
+);
+
+joystick.addEventListener(
+    "pointerup",
+    resetJoystick
+);
+
+joystick.addEventListener(
+    "pointercancel",
+    resetJoystick
+);
+
+// ==================================================
+// PLAYER UPDATE
+// ==================================================
+
+function updatePlayer() {
+
+    updateKeyboardInput();
+
+    player.x +=
+        input.x * player.speed;
+
+    player.y +=
+        input.y * player.speed;
+
+    // Keep player inside the world
+
+    player.x = Math.max(
+        0,
+        Math.min(
+            player.x,
+            WORLD_WIDTH - player.width
+        )
+    );
+
+    player.y = Math.max(
+        0,
+        Math.min(
+            player.y,
+            WORLD_HEIGHT - player.height
+        )
+    );
+}
+
+// ==================================================
+// CAMERA UPDATE
+// ==================================================
+
+function updateCamera() {
+
+    /*
+     * Try to keep the player centered.
+     */
+
+    const targetX =
+        player.x +
+        player.width / 2 -
+        camera.width / 2;
+
+    const targetY =
+        player.y +
+        player.height / 2 -
+        camera.height / 2;
+
+    /*
+     * Clamp the camera to the world.
+     *
+     * This gives us:
+     *
+     * Middle:
+     * Camera follows player.
+     *
+     * Left:
+     * Camera stops at left border.
+     *
+     * Right:
+     * Camera stops at right border.
+     *
+     * Top/bottom:
+     * Same behavior.
+     */
+
+    camera.x = Math.max(
+        0,
+        Math.min(
+            targetX,
+            WORLD_WIDTH - camera.width
+        )
+    );
+
+    camera.y = Math.max(
+        0,
+        Math.min(
+            targetY,
+            WORLD_HEIGHT - camera.height
+        )
+    );
+}
+
+// ==================================================
+// DRAW WORLD
+// ==================================================
+
+function drawWorld() {
+
+    // Background
+
+    ctx.fillStyle = "#20242b";
+
+    ctx.fillRect(
+        0,
+        0,
+        VIEW_WIDTH,
+        VIEW_HEIGHT
+    );
+
+    // Grid
+
+    const gridSize = 100;
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,0.08)";
+
+    ctx.lineWidth = 1;
+
+    const startX =
+        Math.floor(camera.x / gridSize) *
+        gridSize;
+
+    const startY =
+        Math.floor(camera.y / gridSize) *
+        gridSize;
+
+    // Vertical grid
+
+    for (
+        let x = startX;
+        x <= camera.x + camera.width;
+        x += gridSize
+    ) {
+
+        const screenX =
+            x - camera.x;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            screenX,
+            0
+        );
+
+        ctx.lineTo(
+            screenX,
+            VIEW_HEIGHT
+        );
+
+        ctx.stroke();
+    }
+
+    // Horizontal grid
+
+    for (
+        let y = startY;
+        y <= camera.y + camera.height;
+        y += gridSize
+    ) {
+
+        const screenY =
+            y - camera.y;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            screenY
+        );
+
+        ctx.lineTo(
+            VIEW_WIDTH,
+            screenY
+        );
+
+        ctx.stroke();
+    }
+
+    // World border
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 5;
+
+    ctx.strokeRect(
+        -camera.x,
+        -camera.y,
+        WORLD_WIDTH,
+        WORLD_HEIGHT
+    );
+}
+
+// ==================================================
+// DRAW PLAYER
+// ==================================================
+
+function drawPlayer() {
+
+    const screenX =
+        player.x - camera.x;
+
+    const screenY =
+        player.y - camera.y;
+
+    ctx.fillStyle = "#4da6ff";
+
+    ctx.fillRect(
+        screenX,
+        screenY,
+        player.width,
+        player.height
+    );
+
+    // Player outline
+
+    ctx.strokeStyle = "#ffffff";
+
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(
+        screenX,
+        screenY,
+        player.width,
+        player.height
+    );
+}
+
+// ==================================================
+// DRAW UI
+// ==================================================
+
+function drawUI() {
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.font = "20px Arial";
+
+    ctx.fillText(
+        "Deadline Dash - V0.1",
+        20,
+        35
+    );
+}
+
+// ==================================================
+// DRAW
+// ==================================================
+
+function draw() {
+
+    drawWorld();
+
+    drawPlayer();
+
+    drawUI();
+}
+
+// ==================================================
+// GAME LOOP
+// ==================================================
+
+function gameLoop() {
+
+    updatePlayer();
+
+    updateCamera();
+
+    draw();
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+gameLoop();
