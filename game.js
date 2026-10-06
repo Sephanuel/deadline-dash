@@ -53,8 +53,10 @@ function resizeGame() {
     const screenHeight = window.innerHeight;
 
     /*
-     * Scale the game uniformly.
-     * The game itself always remains 900 x 600.
+     * Keep the game at a fixed logical resolution.
+     *
+     * The screen only changes the DISPLAY SIZE.
+     * Gameplay coordinates never change.
      */
 
     const scale = Math.min(
@@ -254,42 +256,46 @@ function updatePlayer() {
 
     updateKeyboardInput();
 
-    // Calculate intended movement
-    const nextX =
+    /*
+     * Calculate the requested movement first.
+     */
+
+    let nextX =
         player.x +
         input.x * player.speed;
 
-    const nextY =
+    let nextY =
         player.y +
         input.y * player.speed;
 
-    // ==========================================
-    // WORLD BOUNDARIES
-    // ==========================================
+    /*
+     * WORLD BOUNDARIES
+     *
+     * The player can never leave the world.
+     */
 
-    // LEFT
-    player.x = Math.max(
+    nextX = Math.max(
         0,
         nextX
     );
 
-    // RIGHT
-    player.x = Math.min(
-        player.x,
-        WORLD_WIDTH - player.width
+    nextX = Math.min(
+        WORLD_WIDTH - player.width,
+        nextX
     );
 
-    // TOP
-    player.y = Math.max(
+    nextY = Math.max(
         0,
         nextY
     );
 
-    // BOTTOM
-    player.y = Math.min(
-        player.y,
-        WORLD_HEIGHT - player.height
+    nextY = Math.min(
+        WORLD_HEIGHT - player.height,
+        nextY
     );
+
+    player.x = nextX;
+    player.y = nextY;
 }
 
 // ==================================================
@@ -298,46 +304,60 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    // Follow player
+    /*
+     * Desired position:
+     * keep the player in the center.
+     */
 
-    const targetX =
+    const desiredX =
         player.x +
         player.width / 2 -
         camera.width / 2;
 
-    const targetY =
+    const desiredY =
         player.y +
         player.height / 2 -
         camera.height / 2;
 
-    // Camera boundaries
+    /*
+     * Maximum camera positions.
+     *
+     * At these positions the camera's edge
+     * exactly touches the world's edge.
+     */
 
     const maxCameraX =
-        Math.max(
-            0,
-            WORLD_WIDTH - camera.width
-        );
+        WORLD_WIDTH - camera.width;
 
     const maxCameraY =
-        Math.max(
-            0,
-            WORLD_HEIGHT - camera.height
-        );
+        WORLD_HEIGHT - camera.height;
 
-    // Clamp camera
+    /*
+     * HORIZONTAL
+     *
+     * Follow player normally.
+     * Stop at left/right world borders.
+     */
 
     camera.x = Math.max(
         0,
         Math.min(
-            targetX,
+            desiredX,
             maxCameraX
         )
     );
 
+    /*
+     * VERTICAL
+     *
+     * Follow player normally.
+     * Stop at top/bottom world borders.
+     */
+
     camera.y = Math.max(
         0,
         Math.min(
-            targetY,
+            desiredY,
             maxCameraY
         )
     );
@@ -349,7 +369,7 @@ function updateCamera() {
 
 function drawWorld() {
 
-    // Background
+    // Clear background
 
     ctx.fillStyle = "#20242b";
 
@@ -360,7 +380,9 @@ function drawWorld() {
         VIEW_HEIGHT
     );
 
-    // Grid
+    // ==================================================
+    // GRID
+    // ==================================================
 
     const gridSize = 100;
 
@@ -377,7 +399,7 @@ function drawWorld() {
         Math.floor(camera.y / gridSize) *
         gridSize;
 
-    // Vertical grid
+    // Vertical lines
 
     for (
         let x = startX;
@@ -403,7 +425,7 @@ function drawWorld() {
         ctx.stroke();
     }
 
-    // Horizontal grid
+    // Horizontal lines
 
     for (
         let y = startY;
@@ -429,9 +451,12 @@ function drawWorld() {
         ctx.stroke();
     }
 
-    // World border
+    // ==================================================
+    // WORLD BORDER
+    // ==================================================
 
     ctx.strokeStyle = "#ffffff";
+
     ctx.lineWidth = 5;
 
     ctx.strokeRect(
@@ -442,27 +467,6 @@ function drawWorld() {
     );
 }
 
-// DEBUG: draw bottom world boundary
-
-const bottomBorder =
-    WORLD_HEIGHT - camera.y;
-
-ctx.strokeStyle = "#ff0000";
-ctx.lineWidth = 6;
-
-ctx.beginPath();
-
-ctx.moveTo(
-    0,
-    bottomBorder
-);
-
-ctx.lineTo(
-    VIEW_WIDTH,
-    bottomBorder
-);
-
-ctx.stroke();
 // ==================================================
 // DRAW PLAYER
 // ==================================================
@@ -483,8 +487,6 @@ function drawPlayer() {
         player.width,
         player.height
     );
-
-    // Player outline
 
     ctx.strokeStyle = "#ffffff";
 
