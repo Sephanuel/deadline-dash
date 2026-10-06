@@ -627,6 +627,108 @@ function drawObjectiveArrow() {
         0
     );
 
-    ctx.lineTo(
+        ctx.lineTo(
         -10,
         11
+    );
+
+    ctx.closePath();
+
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+
+    ctx.restore();
+}
+
+// ==================================================
+// DRAW PLAYER
+// ==================================================
+
+function drawPlayer() {
+
+    const screenX =
+        player.x - camera.x;
+
+    const screenY =
+        player.y - camera.y;
+
+    ctx.fillStyle = "#4da6ff";
+
+    ctx.fillRect(
+        screenX,
+        screenY,
+        player.width,
+        player.height
+    );
+
+    ctx.strokeStyle = "#ffffff";
+
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(
+        screenX,
+        screenY,
+        player.width,
+        player.height
+    );
+}
+
+// ==================================================
+// DRAW UI
+// ==================================================
+
+function drawUI() {
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.font = "20px Arial";
+
+    ctx.fillText(
+        "Deadline Dash - V0.1",
+        20,
+        35
+    );
+}
+
+// ==================================================
+// DRAW
+// ==================================================
+
+function draw() {
+
+    drawWorld();
+
+    drawAssignment();
+
+    drawPlayer();
+
+    drawObjectiveArrow();
+
+    drawUI();
+}
+
+// ==================================================
+// GAME LOOP
+// ==================================================
+
+function gameLoop() {
+
+    updatePlayer();
+
+    checkAssignmentPickup();
+
+    updateCamera();
+
+    draw();
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+gameLoop();
