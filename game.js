@@ -325,6 +325,21 @@ function startDeadlineTimer() {
 }
 
 // ==================================================
+// DEADLINE MISSED
+// ==================================================
+
+function handleDeadlineMissed() {
+
+    timeLeft = 0;
+
+    updateTimerDisplay();
+
+    document.getElementById(
+        "lose-screen"
+    ).style.display = "flex";
+}
+
+// ==================================================
 // UPDATE TIMER DISPLAY
 // ==================================================
 
@@ -425,10 +440,17 @@ function checkSubmissionInteraction() {
 
 function showWinScreen() {
 
+    // Stop deadline timer
+    if (timerInterval !== null) {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+    }
+
     document.getElementById(
         "win-screen"
     ).style.display = "flex";
-
 }
 
 // ==================================================
@@ -442,7 +464,23 @@ function restartGame() {
     player.x = 300;
     player.y = 300;
 
+    
+    // Reset timer
 
+if (timerInterval !== null) {
+
+    clearInterval(timerInterval);
+
+    timerInterval = null;
+}
+
+timeLeft = DEADLINE_TIME;
+
+timerStarted = false;
+
+updateTimerDisplay();
+
+    
     // Reset assignment
 
     assignment.status = "Not Started";
@@ -480,6 +518,11 @@ function restartGame() {
     document.getElementById(
         "win-screen"
     ).style.display = "none";
+
+
+    document.getElementById(
+    "lose-screen"
+).style.display = "none";
 
 
     // Reset assignment UI
