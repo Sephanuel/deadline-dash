@@ -163,3 +163,40 @@ canvas {
         display: none;
     }
 }
+
+/* ==================================================
+   ASSIGNMENT PANEL
+   ================================================== */
+
+#assignment-panel {
+    position: absolute;
+
+    top: 20px;
+    right: 20px;
+
+    width: 260px;
+
+    padding: 15px;
+
+    background: rgba(17, 17, 17, 0.9);
+
+    color: white;
+
+    border: 2px solid white;
+    border-radius: 10px;
+
+    z-index: 20;
+}
+
+#assignment-panel h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+#assignment-panel p {
+    margin-bottom: 6px;
+}
+
+#assignment-status {
+    font-weight: bold;
+}
