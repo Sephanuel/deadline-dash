@@ -19,11 +19,12 @@ body {
     user-select: none;
 }
 
-/* =========================
+/* ==================================================
    GAME CONTAINER
-   ========================= */
+   ================================================== */
 
 #game-container {
+
     position: relative;
 
     width: 100vw;
@@ -35,14 +36,22 @@ body {
     align-items: center;
 
     overflow: hidden;
+
+    background: #111;
 }
 
-/* =========================
-   CANVAS
-   ========================= */
+/* ==================================================
+   GAME CANVAS
+   ================================================== */
 
 canvas {
+
     display: block;
+
+    /*
+     * JavaScript controls the displayed size.
+     * The actual game remains 900 x 600.
+     */
 
     width: 900px;
     height: 600px;
@@ -50,17 +59,81 @@ canvas {
     max-width: none;
     max-height: none;
 
+    flex-shrink: 0;
+
     background: #20242b;
 
     touch-action: none;
-
-    flex-shrink: 0;
 }
-/* =========================
-   ORIENTATION MESSAGE
-   ========================= */
+
+/* ==================================================
+   JOYSTICK
+   ================================================== */
+
+#joystick {
+
+    position: absolute;
+
+    left: 30px;
+    bottom: 30px;
+
+    width: 120px;
+    height: 120px;
+
+    border: 3px solid
+        rgba(255, 255, 255, 0.5);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.12);
+
+    display: none;
+
+    touch-action: none;
+
+    z-index: 10;
+}
+
+#joystick-knob {
+
+    position: absolute;
+
+    left: 50%;
+    top: 50%;
+
+    width: 50px;
+    height: 50px;
+
+    transform:
+        translate(-50%, -50%);
+
+    border-radius: 50%;
+
+    background:
+        rgba(255, 255, 255, 0.7);
+
+    pointer-events: none;
+}
+
+/* ==================================================
+   MOBILE LANDSCAPE
+   ================================================== */
+
+@media (pointer: coarse)
+       and (orientation: landscape) {
+
+    #joystick {
+        display: block;
+    }
+}
+
+/* ==================================================
+   PORTRAIT MESSAGE
+   ================================================== */
 
 #orientation-message {
+
     display: none;
 
     position: fixed;
@@ -90,9 +163,12 @@ canvas {
     line-height: 1.5;
 }
 
-/* Show message only in portrait on small/touch devices */
+/* ==================================================
+   MOBILE PORTRAIT
+   ================================================== */
 
-@media (orientation: portrait) and (pointer: coarse) {
+@media (orientation: portrait)
+       and (pointer: coarse) {
 
     #orientation-message {
         display: flex;
@@ -100,56 +176,5 @@ canvas {
 
     #game-container {
         display: none;
-    }
-}
-
-/* =========================
-   JOYSTICK
-   ========================= */
-
-#joystick {
-    position: absolute;
-
-    left: 30px;
-    bottom: 30px;
-
-    width: 120px;
-    height: 120px;
-
-    border: 3px solid rgba(255, 255, 255, 0.5);
-
-    border-radius: 50%;
-
-    background: rgba(255, 255, 255, 0.12);
-
-    display: none;
-
-    touch-action: none;
-}
-
-#joystick-knob {
-    position: absolute;
-
-    left: 50%;
-    top: 50%;
-
-    width: 50px;
-    height: 50px;
-
-    transform: translate(-50%, -50%);
-
-    border-radius: 50%;
-
-    background: rgba(255, 255, 255, 0.7);
-
-    pointer-events: none;
-}
-
-/* Touch devices only */
-
-@media (pointer: coarse) and (orientation: landscape) {
-
-    #joystick {
-        display: block;
     }
 }
