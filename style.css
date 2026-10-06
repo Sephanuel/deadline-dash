@@ -418,3 +418,13 @@ canvas {
 #win-box button:active {
     transform: scale(0.97);
     }
+
+/* ==================================================
+   DEADLINE TIMER
+   ================================================== */
+
+#deadline-timer {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+}
