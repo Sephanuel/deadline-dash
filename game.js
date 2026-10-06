@@ -254,28 +254,41 @@ function updatePlayer() {
 
     updateKeyboardInput();
 
-    player.x +=
+    // Calculate intended movement
+    const nextX =
+        player.x +
         input.x * player.speed;
 
-    player.y +=
+    const nextY =
+        player.y +
         input.y * player.speed;
 
-    // Keep player inside the world
+    // ==========================================
+    // WORLD BOUNDARIES
+    // ==========================================
 
+    // LEFT
     player.x = Math.max(
         0,
-        Math.min(
-            player.x,
-            WORLD_WIDTH - player.width
-        )
+        nextX
     );
 
+    // RIGHT
+    player.x = Math.min(
+        player.x,
+        WORLD_WIDTH - player.width
+    );
+
+    // TOP
     player.y = Math.max(
         0,
-        Math.min(
-            player.y,
-            WORLD_HEIGHT - player.height
-        )
+        nextY
+    );
+
+    // BOTTOM
+    player.y = Math.min(
+        player.y,
+        WORLD_HEIGHT - player.height
     );
 }
 
@@ -285,61 +298,49 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    // Follow the player
-    camera.x =
+    // Follow player
+
+    const targetX =
         player.x +
         player.width / 2 -
         camera.width / 2;
 
-    camera.y =
+    const targetY =
         player.y +
         player.height / 2 -
         camera.height / 2;
 
-    // ------------------------------------------
-    // LEFT / RIGHT CAMERA LIMITS
-    // ------------------------------------------
+    // Camera boundaries
+
+    const maxCameraX =
+        Math.max(
+            0,
+            WORLD_WIDTH - camera.width
+        );
+
+    const maxCameraY =
+        Math.max(
+            0,
+            WORLD_HEIGHT - camera.height
+        );
+
+    // Clamp camera
 
     camera.x = Math.max(
         0,
         Math.min(
-            camera.x,
-            WORLD_WIDTH - camera.width
+            targetX,
+            maxCameraX
         )
     );
-
-    // ------------------------------------------
-    // TOP / BOTTOM CAMERA LIMITS
-    // ------------------------------------------
 
     camera.y = Math.max(
         0,
         Math.min(
-            camera.y,
-            WORLD_HEIGHT - camera.height
+            targetY,
+            maxCameraY
         )
     );
-
-    // ------------------------------------------
-    // SAFETY: KEEP PLAYER INSIDE CAMERA
-    // ------------------------------------------
-
-    if (player.y < camera.y) {
-
-        player.y = camera.y;
-
-    }
-
-    if (
-        player.y + player.height >
-        camera.y + camera.height
-    ) {
-
-        player.y =
-            camera.y +
-            camera.height -
-            player.height;
-    }
 }
 
 // ==================================================
@@ -441,6 +442,27 @@ function drawWorld() {
     );
 }
 
+// DEBUG: draw bottom world boundary
+
+const bottomBorder =
+    WORLD_HEIGHT - camera.y;
+
+ctx.strokeStyle = "#ff0000";
+ctx.lineWidth = 6;
+
+ctx.beginPath();
+
+ctx.moveTo(
+    0,
+    bottomBorder
+);
+
+ctx.lineTo(
+    VIEW_WIDTH,
+    bottomBorder
+);
+
+ctx.stroke();
 // ==================================================
 // DRAW PLAYER
 // ==================================================
