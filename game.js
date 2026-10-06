@@ -352,17 +352,48 @@ function updateTimerDisplay() {
         return;
     }
 
+
     const minutes =
         Math.floor(timeLeft / 60);
 
     const seconds =
         timeLeft % 60;
 
+
     timer.textContent =
         "Time Left: " +
         String(minutes).padStart(2, "0") +
         ":" +
         String(seconds).padStart(2, "0");
+
+
+    // Remove previous urgency states
+
+    timer.classList.remove(
+        "timer-warning",
+        "timer-critical"
+    );
+
+
+    // Critical: 10 seconds or less
+
+    if (timeLeft <= 10) {
+
+        timer.classList.add(
+            "timer-critical"
+        );
+
+    }
+
+    // Warning: 20 seconds or less
+
+    else if (timeLeft <= 20) {
+
+        timer.classList.add(
+            "timer-warning"
+        );
+
+    }
 }
 
 // ==================================================
