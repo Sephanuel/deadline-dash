@@ -285,40 +285,32 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    // Desired camera position:
-    // keep the player centered.
-    const targetX =
+    // Follow player
+    camera.x =
         player.x +
         player.width / 2 -
         camera.width / 2;
 
-    const targetY =
+    camera.y =
         player.y +
         player.height / 2 -
         camera.height / 2;
 
-    // Maximum camera positions inside the world.
-    const maxCameraX =
-        WORLD_WIDTH - camera.width;
-
-    const maxCameraY =
-        WORLD_HEIGHT - camera.height;
-
-    // Horizontal camera
+    // Camera left/right limits
     camera.x = Math.max(
         0,
         Math.min(
-            targetX,
-            maxCameraX
+            camera.x,
+            WORLD_WIDTH - camera.width
         )
     );
 
-    // Vertical camera
+    // Camera top/bottom limits
     camera.y = Math.max(
         0,
         Math.min(
-            targetY,
-            maxCameraY
+            camera.y,
+            WORLD_HEIGHT - camera.height
         )
     );
 }
