@@ -285,7 +285,7 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    // Follow player
+    // Follow the player
     camera.x =
         player.x +
         player.width / 2 -
@@ -296,7 +296,10 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
-    // Camera left/right limits
+    // ------------------------------------------
+    // LEFT / RIGHT CAMERA LIMITS
+    // ------------------------------------------
+
     camera.x = Math.max(
         0,
         Math.min(
@@ -305,7 +308,10 @@ function updateCamera() {
         )
     );
 
-    // Camera top/bottom limits
+    // ------------------------------------------
+    // TOP / BOTTOM CAMERA LIMITS
+    // ------------------------------------------
+
     camera.y = Math.max(
         0,
         Math.min(
@@ -313,6 +319,27 @@ function updateCamera() {
             WORLD_HEIGHT - camera.height
         )
     );
+
+    // ------------------------------------------
+    // SAFETY: KEEP PLAYER INSIDE CAMERA
+    // ------------------------------------------
+
+    if (player.y < camera.y) {
+
+        player.y = camera.y;
+
+    }
+
+    if (
+        player.y + player.height >
+        camera.y + camera.height
+    ) {
+
+        player.y =
+            camera.y +
+            camera.height -
+            player.height;
+    }
 }
 
 // ==================================================
