@@ -44,19 +44,14 @@ body {
 canvas {
     display: block;
 
+    width: 100vw;
+    height: 100vh;
+
     background: #20242b;
 
     touch-action: none;
 
-    /*
-       Keep the game's 3:2 aspect ratio.
-    */
-
-    width: min(100vw, 150vh);
-
-    height: min(66.6667vw, 100vh);
-
-    aspect-ratio: 3 / 2;
+    object-fit: contain;
 }
 
 /* =========================
