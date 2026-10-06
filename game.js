@@ -285,10 +285,8 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    /*
-     * Try to keep the player centered.
-     */
-
+    // Desired camera position:
+    // keep the player centered.
     const targetX =
         player.x +
         player.width / 2 -
@@ -299,37 +297,28 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
-    /*
-     * Clamp the camera to the world.
-     *
-     * This gives us:
-     *
-     * Middle:
-     * Camera follows player.
-     *
-     * Left:
-     * Camera stops at left border.
-     *
-     * Right:
-     * Camera stops at right border.
-     *
-     * Top/bottom:
-     * Same behavior.
-     */
+    // Maximum camera positions inside the world.
+    const maxCameraX =
+        WORLD_WIDTH - camera.width;
 
+    const maxCameraY =
+        WORLD_HEIGHT - camera.height;
+
+    // Horizontal camera
     camera.x = Math.max(
         0,
         Math.min(
             targetX,
-            WORLD_WIDTH - camera.width
+            maxCameraX
         )
     );
 
+    // Vertical camera
     camera.y = Math.max(
         0,
         Math.min(
             targetY,
-            WORLD_HEIGHT - camera.height
+            maxCameraY
         )
     );
 }
