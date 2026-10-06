@@ -2,9 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0,
-                   maximum-scale=1.0, user-scalable=no">
+
+    <meta
+        name="viewport"
+        content="width=device-width,
+                 initial-scale=1.0,
+                 maximum-scale=1.0,
+                 user-scalable=no"
+    >
 
     <title>Deadline Dash</title>
 
@@ -13,11 +18,17 @@
 
 <body>
 
+    <div id="orientation-message">
+        <div>
+            <h1>🔄 Rotate Your Device</h1>
+            <p>Deadline Dash is designed to be played in landscape mode.</p>
+        </div>
+    </div>
+
     <div id="game-container">
 
         <canvas id="gameCanvas"></canvas>
 
-        <!-- Mobile joystick -->
         <div id="joystick">
             <div id="joystick-knob"></div>
         </div>
