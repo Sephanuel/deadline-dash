@@ -251,6 +251,19 @@ const submissionDesk = {
 // ==================================================
 
 let miniGameOpen = false;
+
+// ==================================================
+// DEADLINE TIMER
+// ==================================================
+
+const DEADLINE_TIME = 90;
+
+let timeLeft = DEADLINE_TIME;
+
+let timerStarted = false;
+
+let timerInterval = null;
+
 // ==================================================
 // ASSIGNMENT PICKUP
 // ==================================================
@@ -276,9 +289,40 @@ function checkAssignmentPickup() {
         document.getElementById(
             "assignment-status"
         ).textContent = "Status: Started";
+
+        startDeadlineTimer();
     }
 }
 
+// ==================================================
+// START DEADLINE TIMER
+// ==================================================
+
+function startDeadlineTimer() {
+
+    if (timerStarted) {
+        return;
+    }
+
+    timerStarted = true;
+
+    timerInterval = setInterval(function () {
+
+        timeLeft--;
+
+        updateTimerDisplay();
+
+        if (timeLeft <= 0) {
+
+            clearInterval(timerInterval);
+
+            timerInterval = null;
+
+            handleDeadlineMissed();
+        }
+
+    }, 1000);
+}
 
 // ==================================================
 // WORKSTATION INTERACTION
