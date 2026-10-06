@@ -491,3 +491,26 @@ canvas {
 #lose-box button:active {
     transform: scale(0.97);
 }
+
+/* ==================================================
+   TIMER URGENCY STATES
+   ================================================== */
+
+#deadline-timer.timer-warning {
+    font-weight: bold;
+}
+
+#deadline-timer.timer-critical {
+    font-weight: bold;
+    animation: timerPulse 0.6s infinite alternate;
+}
+
+@keyframes timerPulse {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.08);
+    }
+}
