@@ -56,6 +56,106 @@ const input = {
 
 const keys = {};
 
+// ==================================================
+// MOBILE JOYSTICK
+// ==================================================
+
+const joystick = document.getElementById("joystick");
+const joystickKnob = document.getElementById("joystick-knob");
+
+if (joystick && joystickKnob) {
+
+    let joystickActive = false;
+
+    function updateJoystick(touch) {
+
+        const rect = joystick.getBoundingClientRect();
+
+        const centerX =
+            rect.left + rect.width / 2;
+
+        const centerY =
+            rect.top + rect.height / 2;
+
+        let dx = touch.clientX - centerX;
+        let dy = touch.clientY - centerY;
+
+        const maxDistance =
+            rect.width / 2 - joystickKnob.offsetWidth / 2;
+
+        const distance =
+            Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > maxDistance) {
+
+            dx =
+                (dx / distance) *
+                maxDistance;
+
+            dy =
+                (dy / distance) *
+                maxDistance;
+        }
+
+        joystickKnob.style.transform =
+            `translate(${dx}px, ${dy}px)`;
+
+        input.x = dx / maxDistance;
+        input.y = dy / maxDistance;
+    }
+
+
+    joystick.addEventListener(
+        "touchstart",
+        function (event) {
+
+            event.preventDefault();
+
+            joystickActive = true;
+
+            updateJoystick(
+                event.touches[0]
+            );
+        },
+        { passive: false }
+    );
+
+
+    joystick.addEventListener(
+        "touchmove",
+        function (event) {
+
+            if (!joystickActive) {
+                return;
+            }
+
+            event.preventDefault();
+
+            updateJoystick(
+                event.touches[0]
+            );
+        },
+        { passive: false }
+    );
+
+
+    joystick.addEventListener(
+        "touchend",
+        function (event) {
+
+            event.preventDefault();
+
+            joystickActive = false;
+
+            input.x = 0;
+            input.y = 0;
+
+            joystickKnob.style.transform =
+                "translate(0px, 0px)";
+        },
+        { passive: false }
+    );
+}
 
 // ==================================================
 // KEYBOARD INPUT
@@ -71,6 +171,14 @@ window.addEventListener("keyup", function (event) {
 
 
 function updateKeyboardInput() {
+
+    // Don't overwrite joystick input
+    if (
+        input.x !== 0 ||
+        input.y !== 0
+    ) {
+        return;
+    }
 
     input.x = 0;
     input.y = 0;
