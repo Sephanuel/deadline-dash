@@ -49,11 +49,17 @@ const camera = {
 
 function resizeGame() {
 
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+    let screenWidth = window.innerWidth;
+    let screenHeight = window.innerHeight;
 
-    // Keep the 900x600 gameplay viewport fixed.
-    // Scale it to fit completely inside the mobile screen.
+    // Use the mobile visual viewport when available.
+    if (window.visualViewport) {
+        screenWidth = window.visualViewport.width;
+        screenHeight = window.visualViewport.height;
+    }
+
+    // Always fit the COMPLETE 900 × 600 game
+    // inside the available screen.
     const scale = Math.min(
         screenWidth / VIEW_WIDTH,
         screenHeight / VIEW_HEIGHT
@@ -64,6 +70,20 @@ function resizeGame() {
 
     canvas.style.height =
         `${VIEW_HEIGHT * scale}px`;
+}
+window.addEventListener(
+    "resize",
+    resizeGame
+);
+
+resizeGame();
+
+if (window.visualViewport) {
+
+    window.visualViewport.addEventListener(
+        "resize",
+        resizeGame
+    );
 }
 // ==================================================
 // INPUT
