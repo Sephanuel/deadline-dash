@@ -350,6 +350,83 @@ function checkSubmissionInteraction() {
 }
 
 // ==================================================
+// WIN SCREEN
+// ==================================================
+
+function showWinScreen() {
+
+    document.getElementById(
+        "win-screen"
+    ).style.display = "flex";
+
+}
+
+// ==================================================
+// RESTART GAME
+// ==================================================
+
+function restartGame() {
+
+    // Reset player
+
+    player.x = 300;
+    player.y = 300;
+
+
+    // Reset assignment
+
+    assignment.status = "Not Started";
+
+    assignment.completed = false;
+
+
+    // Reset assignment object
+
+    assignmentObject.collected = false;
+
+
+    // Reset workstation
+
+    workstation.active = false;
+
+
+    // Reset submission desk
+
+    submissionDesk.active = false;
+
+
+    // Reset mini-game
+
+    miniGameOpen = false;
+
+
+    // Hide screens
+
+    document.getElementById(
+        "mini-game"
+    ).style.display = "none";
+
+
+    document.getElementById(
+        "win-screen"
+    ).style.display = "none";
+
+
+    // Reset assignment UI
+
+    document.getElementById(
+        "assignment-status"
+    ).textContent = "Status: Not Started";
+
+
+    // Reset camera
+
+    camera.x = 0;
+    camera.y = 0;
+
+}
+
+// ==================================================
 // OPEN MINI GAME
 // ==================================================
 
