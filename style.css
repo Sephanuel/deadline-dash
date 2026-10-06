@@ -44,14 +44,18 @@ body {
 canvas {
     display: block;
 
-    width: 100%;
-    height: 100%;
+    width: 900px;
+    height: 600px;
+
+    max-width: none;
+    max-height: none;
 
     background: #20242b;
 
     touch-action: none;
-}
 
+    flex-shrink: 0;
+}
 /* =========================
    ORIENTATION MESSAGE
    ========================= */
