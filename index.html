@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -14,21 +16,51 @@
     <title>Deadline Dash</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
+
 
 <body>
 
+
+    <!-- ==================================================
+         ORIENTATION MESSAGE
+         ================================================== -->
+
     <div id="orientation-message">
+
         <div>
+
             <h1>🔄 Rotate Your Device</h1>
-            <p>Deadline Dash is designed to be played in landscape mode.</p>
+
+            <p>
+                Deadline Dash is designed to be played
+                in landscape mode.
+            </p>
+
         </div>
+
     </div>
+
+
+    <!-- ==================================================
+         GAME CONTAINER
+         ================================================== -->
 
     <div id="game-container">
 
+
+        <!-- GAME CANVAS -->
+
         <canvas id="gameCanvas"></canvas>
+
+
+        <!-- ==================================================
+             ASSIGNMENT PANEL
+             ================================================== -->
+
         <div id="assignment-panel">
+
             <h2>ASSIGNMENT</h2>
 
             <p id="assignment-title">
@@ -42,22 +74,26 @@
             <p id="assignment-status">
                 Status: Not Started
             </p>
+
         </div>
+
+
         <!-- ==================================================
-     C PROGRAMMING MINI-GAME
-     ================================================== -->
+             C PROGRAMMING MINI-GAME
+             ================================================== -->
 
-<div id="mini-game">
+        <div id="mini-game">
 
-    <div id="mini-game-box">
+            <div id="mini-game-box">
 
-        <h2>C PROGRAMMING</h2>
+                <h2>C PROGRAMMING</h2>
 
-        <p class="mini-game-instruction">
-            Find the syntax error in this code:
-        </p>
+                <p class="mini-game-instruction">
+                    Find the syntax error in this code:
+                </p>
 
-        <pre id="code-question">#include &lt;stdio.h&gt;
+
+                <pre id="code-question">#include &lt;stdio.h&gt;
 
 int main() {
     int x = 10
@@ -65,46 +101,90 @@ int main() {
     return 0;
 }</pre>
 
-        <p class="mini-game-question">
-            Which line contains the syntax error?
-        </p>
 
-        <div id="answer-buttons">
+                <p class="mini-game-question">
+                    Which line contains the syntax error?
+                </p>
 
-            <button onclick="checkAnswer(1)">
-                Line 1
-            </button>
 
-            <button onclick="checkAnswer(2)">
-                Line 2
-            </button>
+                <div id="answer-buttons">
 
-            <button onclick="checkAnswer(3)">
-                Line 3
-            </button>
+                    <button onclick="checkAnswer(1)">
+                        Line 1
+                    </button>
 
-            <button onclick="checkAnswer(4)">
-                Line 4
-            </button>
+                    <button onclick="checkAnswer(2)">
+                        Line 2
+                    </button>
 
-            <button onclick="checkAnswer(5)">
-                Line 5
-            </button>
+                    <button onclick="checkAnswer(3)">
+                        Line 3
+                    </button>
+
+                    <button onclick="checkAnswer(4)">
+                        Line 4
+                    </button>
+
+                    <button onclick="checkAnswer(5)">
+                        Line 5
+                    </button>
+
+                </div>
+
+
+                <p id="mini-game-result"></p>
+
+            </div>
 
         </div>
 
-        <p id="mini-game-result"></p>
 
-    </div>
+        <!-- ==================================================
+             WIN SCREEN
+             ================================================== -->
 
-</div>
+        <div id="win-screen">
+
+            <div id="win-box">
+
+                <h1>
+                    ASSIGNMENT SUBMITTED!
+                </h1>
+
+                <p>
+                    You survived the deadline.
+                </p>
+
+                <button onclick="restartGame()">
+                    PLAY AGAIN
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================================
+             MOBILE JOYSTICK
+             ================================================== -->
+
         <div id="joystick">
+
             <div id="joystick-knob"></div>
+
         </div>
 
+
     </div>
+
+
+    <!-- ==================================================
+         GAME JAVASCRIPT
+         ================================================== -->
 
     <script src="game.js"></script>
 
+
 </body>
-</html>
+
+                    </html>
