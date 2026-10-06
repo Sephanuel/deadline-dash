@@ -44,6 +44,31 @@ const camera = {
 };
 
 // ==================================================
+// ASSIGNMENT
+// ==================================================
+
+const assignment = {
+    subject: "C Programming",
+    task: "Find the syntax error",
+    status: "Not Started",
+    completed: false
+};
+
+// ==================================================
+// ASSIGNMENT OBJECT
+// ==================================================
+
+const assignmentObject = {
+    x: 500,
+    y: 400,
+
+    width: 40,
+    height: 40,
+
+    collected: false
+};
+
+// ==================================================
 // DISPLAY
 // ==================================================
 
@@ -71,6 +96,7 @@ function resizeGame() {
     canvas.style.height =
         `${VIEW_HEIGHT * scale}px`;
 }
+
 window.addEventListener(
     "resize",
     resizeGame
@@ -257,16 +283,52 @@ joystick.addEventListener(
 );
 
 // ==================================================
+// ASSIGNMENT PICKUP
+// ==================================================
+
+function checkAssignmentPickup() {
+
+    if (assignmentObject.collected) {
+        return;
+    }
+
+    const touching =
+        player.x <
+            assignmentObject.x +
+            assignmentObject.width &&
+
+        player.x +
+            player.width >
+            assignmentObject.x &&
+
+        player.y <
+            assignmentObject.y +
+            assignmentObject.height &&
+
+        player.y +
+            player.height >
+            assignmentObject.y;
+
+    if (touching) {
+
+        assignmentObject.collected = true;
+
+        assignment.status = "Started";
+
+        document.getElementById(
+            "assignment-status"
+        ).textContent =
+            "Status: Started";
+    }
+}
+
+// ==================================================
 // PLAYER UPDATE
 // ==================================================
 
 function updatePlayer() {
 
     updateKeyboardInput();
-
-    /*
-     * Calculate the requested movement first.
-     */
 
     let nextX =
         player.x +
@@ -276,11 +338,7 @@ function updatePlayer() {
         player.y +
         input.y * player.speed;
 
-    /*
-     * WORLD BOUNDARIES
-     *
-     * The player can never leave the world.
-     */
+    // WORLD BOUNDARIES
 
     nextX = Math.max(
         0,
@@ -312,11 +370,6 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    /*
-     * Desired position:
-     * keep the player in the center.
-     */
-
     const desiredX =
         player.x +
         player.width / 2 -
@@ -327,25 +380,11 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
-    /*
-     * Maximum camera positions.
-     *
-     * At these positions the camera's edge
-     * exactly touches the world's edge.
-     */
-
     const maxCameraX =
         WORLD_WIDTH - camera.width;
 
     const maxCameraY =
         WORLD_HEIGHT - camera.height;
-
-    /*
-     * HORIZONTAL
-     *
-     * Follow player normally.
-     * Stop at left/right world borders.
-     */
 
     camera.x = Math.max(
         0,
@@ -354,13 +393,6 @@ function updateCamera() {
             maxCameraX
         )
     );
-
-    /*
-     * VERTICAL
-     *
-     * Follow player normally.
-     * Stop at top/bottom world borders.
-     */
 
     camera.y = Math.max(
         0,
@@ -376,8 +408,6 @@ function updateCamera() {
 // ==================================================
 
 function drawWorld() {
-
-    // Clear background
 
     ctx.fillStyle = "#20242b";
 
@@ -476,24 +506,28 @@ function drawWorld() {
 }
 
 // ==================================================
-// DRAW PLAYER
+// DRAW ASSIGNMENT
 // ==================================================
 
-function drawPlayer() {
+function drawAssignment() {
+
+    if (assignmentObject.collected) {
+        return;
+    }
 
     const screenX =
-        player.x - camera.x;
+        assignmentObject.x - camera.x;
 
     const screenY =
-        player.y - camera.y;
+        assignmentObject.y - camera.y;
 
-    ctx.fillStyle = "#4da6ff";
+    ctx.fillStyle = "#ffd54a";
 
     ctx.fillRect(
         screenX,
         screenY,
-        player.width,
-        player.height
+        assignmentObject.width,
+        assignmentObject.height
     );
 
     ctx.strokeStyle = "#ffffff";
@@ -503,56 +537,96 @@ function drawPlayer() {
     ctx.strokeRect(
         screenX,
         screenY,
-        player.width,
-        player.height
+        assignmentObject.width,
+        assignmentObject.height
     );
 }
 
 // ==================================================
-// DRAW UI
+// OBJECTIVE ARROW
 // ==================================================
 
-function drawUI() {
+function drawObjectiveArrow() {
 
-    ctx.fillStyle = "#ffffff";
+    if (assignmentObject.collected) {
+        return;
+    }
 
-    ctx.font = "20px Arial";
+    const playerCenterX =
+        player.x +
+        player.width / 2;
 
-    ctx.fillText(
-        "Deadline Dash - V0.1",
-        20,
-        35
+    const playerCenterY =
+        player.y +
+        player.height / 2;
+
+    const objectiveCenterX =
+        assignmentObject.x +
+        assignmentObject.width / 2;
+
+    const objectiveCenterY =
+        assignmentObject.y +
+        assignmentObject.height / 2;
+
+    const dx =
+        objectiveCenterX -
+        playerCenterX;
+
+    const dy =
+        objectiveCenterY -
+        playerCenterY;
+
+    const angle =
+        Math.atan2(dy, dx);
+
+    const arrowDistance = 55;
+
+    const screenPlayerX =
+        playerCenterX -
+        camera.x;
+
+    const screenPlayerY =
+        playerCenterY -
+        camera.y;
+
+    const arrowX =
+        screenPlayerX +
+        Math.cos(angle) *
+        arrowDistance;
+
+    const arrowY =
+        screenPlayerY +
+        Math.sin(angle) *
+        arrowDistance;
+
+    ctx.save();
+
+    ctx.translate(
+        arrowX,
+        arrowY
     );
-}
 
-// ==================================================
-// DRAW
-// ==================================================
+    ctx.rotate(angle);
 
-function draw() {
+    ctx.fillStyle = "#ffd54a";
 
-    drawWorld();
+    ctx.beginPath();
 
-    drawPlayer();
-
-    drawUI();
-}
-
-// ==================================================
-// GAME LOOP
-// ==================================================
-
-function gameLoop() {
-
-    updatePlayer();
-
-    updateCamera();
-
-    draw();
-
-    requestAnimationFrame(
-        gameLoop
+    ctx.moveTo(
+        18,
+        0
     );
-}
 
-gameLoop();
+    ctx.lineTo(
+        -10,
+        -11
+    );
+
+    ctx.lineTo(
+        -5,
+        0
+    );
+
+    ctx.lineTo(
+        -10,
+        11
