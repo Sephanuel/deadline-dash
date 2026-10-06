@@ -234,6 +234,17 @@ const workstation = {
     active: false
 };
 
+// ==================================================
+// SUBMISSION DESK
+// ==================================================
+
+const submissionDesk = {
+    x: 1200,
+    y: 500,
+    width: 90,
+    height: 60,
+    active: false
+};
 
 // ==================================================
 // MINI GAME
@@ -307,6 +318,36 @@ function checkWorkstationInteraction() {
     }
 }
 
+// ==================================================
+// SUBMISSION DESK INTERACTION
+// ==================================================
+
+function checkSubmissionInteraction() {
+
+    // Assignment must be completed first
+    if (!assignment.completed) {
+        return;
+    }
+
+    const touching =
+        player.x < submissionDesk.x + submissionDesk.width &&
+        player.x + player.width > submissionDesk.x &&
+        player.y < submissionDesk.y + submissionDesk.height &&
+        player.y + player.height > submissionDesk.y;
+
+    if (touching) {
+
+        submissionDesk.active = true;
+
+        assignment.status = "Submitted";
+
+        document.getElementById(
+            "assignment-status"
+        ).textContent = "Status: Submitted";
+
+        showWinScreen();
+    }
+}
 
 // ==================================================
 // OPEN MINI GAME
@@ -648,6 +689,59 @@ function drawWorkstation() {
     );
 }
 
+// ==================================================
+// DRAW SUBMISSION DESK
+// ==================================================
+
+function drawSubmissionDesk() {
+
+    const screenX =
+        submissionDesk.x -
+        camera.x;
+
+    const screenY =
+        submissionDesk.y -
+        camera.y;
+
+
+    // Desk
+
+    ctx.fillStyle = "#8b5cf6";
+
+    ctx.fillRect(
+        screenX,
+        screenY,
+        submissionDesk.width,
+        submissionDesk.height
+    );
+
+
+    // Border
+
+    ctx.strokeStyle = "#ffffff";
+
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(
+        screenX,
+        screenY,
+        submissionDesk.width,
+        submissionDesk.height
+    );
+
+
+    // Label
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.font = "13px Arial";
+
+    ctx.fillText(
+        "SUBMIT",
+        screenX + 18,
+        screenY + 35
+    );
+}
 
 // ==================================================
 // DRAW PLAYER
@@ -831,6 +925,8 @@ function draw() {
 
     drawWorkstation();
 
+    drawSubmissionDesk();
+
     drawPlayer();
 
     drawObjectiveArrow();
@@ -910,6 +1006,8 @@ function gameLoop() {
     checkAssignmentPickup();
 
     checkWorkstationInteraction();
+
+    checkSubmissionInteraction();
 
     updateCamera();
 
