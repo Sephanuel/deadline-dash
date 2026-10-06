@@ -4,19 +4,22 @@ const ctx = canvas.getContext("2d");
 const joystick = document.getElementById("joystick");
 const joystickKnob = document.getElementById("joystick-knob");
 
-// =========================
+// ==================================================
 // GAME SETTINGS
-// =========================
+// ==================================================
 
-const GAME_WIDTH = 900;
-const GAME_HEIGHT = 600;
+const VIEW_WIDTH = 900;
+const VIEW_HEIGHT = 600;
 
-canvas.width = GAME_WIDTH;
-canvas.height = GAME_HEIGHT;
+const WORLD_WIDTH = 2400;
+const WORLD_HEIGHT = 1600;
 
-// =========================
+canvas.width = VIEW_WIDTH;
+canvas.height = VIEW_HEIGHT;
+
+// ==================================================
 // INPUT
-// =========================
+// ==================================================
 
 const keys = {};
 
@@ -25,32 +28,55 @@ const input = {
     y: 0
 };
 
+let joystickActive = false;
+
 // Keyboard
+
 window.addEventListener("keydown", (event) => {
+
     keys[event.key.toLowerCase()] = true;
+
 });
 
 window.addEventListener("keyup", (event) => {
+
     keys[event.key.toLowerCase()] = false;
+
 });
 
-// =========================
+// ==================================================
 // PLAYER
-// =========================
+// ==================================================
 
 const player = {
-    x: 100,
-    y: 100,
+
+    x: 300,
+    y: 300,
 
     width: 32,
     height: 32,
 
     speed: 4
+
 };
 
-// =========================
+// ==================================================
+// CAMERA
+// ==================================================
+
+const camera = {
+
+    x: 0,
+    y: 0,
+
+    width: VIEW_WIDTH,
+    height: VIEW_HEIGHT
+
+};
+
+// ==================================================
 // KEYBOARD INPUT
-// =========================
+// ==================================================
 
 function updateKeyboardInput() {
 
@@ -73,52 +99,72 @@ function updateKeyboardInput() {
         y += 1;
     }
 
-    // Normalize diagonal movement
     if (x !== 0 || y !== 0) {
 
-        const length = Math.sqrt(x * x + y * y);
+        const length = Math.sqrt(
+            x * x + y * y
+        );
 
         input.x = x / length;
         input.y = y / length;
 
-    } else if (!joystickActive) {
+    }
+    else if (!joystickActive) {
 
         input.x = 0;
         input.y = 0;
+
     }
+
 }
 
-// =========================
-// MOBILE JOYSTICK
-// =========================
-
-let joystickActive = false;
+// ==================================================
+// JOYSTICK
+// ==================================================
 
 const joystickRadius = 60;
 
 function updateJoystick(clientX, clientY) {
 
-    const rect = joystick.getBoundingClientRect();
+    const rect =
+        joystick.getBoundingClientRect();
 
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const centerX =
+        rect.left + rect.width / 2;
+
+    const centerY =
+        rect.top + rect.height / 2;
 
     let dx = clientX - centerX;
     let dy = clientY - centerY;
 
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const distance =
+        Math.sqrt(dx * dx + dy * dy);
 
     if (distance > joystickRadius) {
 
-        dx = (dx / distance) * joystickRadius;
-        dy = (dy / distance) * joystickRadius;
+        dx =
+            (dx / distance) *
+            joystickRadius;
+
+        dy =
+            (dy / distance) *
+            joystickRadius;
+
     }
 
     joystickKnob.style.transform =
-        `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+        `translate(
+            calc(-50% + ${dx}px),
+            calc(-50% + ${dy}px)
+        )`;
 
-    input.x = dx / joystickRadius;
-    input.y = dy / joystickRadius;
+    input.x =
+        dx / joystickRadius;
+
+    input.y =
+        dy / joystickRadius;
+
 }
 
 function resetJoystick() {
@@ -130,92 +176,242 @@ function resetJoystick() {
 
     joystickKnob.style.transform =
         "translate(-50%, -50%)";
+
 }
 
-joystick.addEventListener("pointerdown", (event) => {
+joystick.addEventListener(
+    "pointerdown",
+    (event) => {
 
-    joystickActive = true;
+        joystickActive = true;
 
-    joystick.setPointerCapture(event.pointerId);
+        joystick.setPointerCapture(
+            event.pointerId
+        );
 
-    updateJoystick(event.clientX, event.clientY);
-});
+        updateJoystick(
+            event.clientX,
+            event.clientY
+        );
 
-joystick.addEventListener("pointermove", (event) => {
-
-    if (!joystickActive) {
-        return;
     }
+);
 
-    updateJoystick(event.clientX, event.clientY);
-});
+joystick.addEventListener(
+    "pointermove",
+    (event) => {
 
-joystick.addEventListener("pointerup", resetJoystick);
-joystick.addEventListener("pointercancel", resetJoystick);
+        if (!joystickActive) {
+            return;
+        }
 
-// =========================
-// UPDATE
-// =========================
+        updateJoystick(
+            event.clientX,
+            event.clientY
+        );
 
-function update() {
+    }
+);
+
+joystick.addEventListener(
+    "pointerup",
+    resetJoystick
+);
+
+joystick.addEventListener(
+    "pointercancel",
+    resetJoystick
+);
+
+// ==================================================
+// PLAYER UPDATE
+// ==================================================
+
+function updatePlayer() {
 
     updateKeyboardInput();
 
-    player.x += input.x * player.speed;
-    player.y += input.y * player.speed;
+    player.x +=
+        input.x *
+        player.speed;
 
-    // Keep player inside map
+    player.y +=
+        input.y *
+        player.speed;
+
+    // World boundaries
 
     player.x = Math.max(
         0,
-        Math.min(player.x, GAME_WIDTH - player.width)
+        Math.min(
+            player.x,
+            WORLD_WIDTH -
+            player.width
+        )
     );
 
     player.y = Math.max(
         0,
-        Math.min(player.y, GAME_HEIGHT - player.height)
+        Math.min(
+            player.y,
+            WORLD_HEIGHT -
+            player.height
+        )
     );
+
 }
 
-// =========================
-// DRAW
-// =========================
+// ==================================================
+// CAMERA UPDATE
+// ==================================================
 
-function draw() {
+function updateCamera() {
+
+    // Keep player near the center
+
+    camera.x =
+        player.x +
+        player.width / 2 -
+        camera.width / 2;
+
+    camera.y =
+        player.y +
+        player.height / 2 -
+        camera.height / 2;
+
+    // Stop camera at world edges
+
+    camera.x = Math.max(
+        0,
+        Math.min(
+            camera.x,
+            WORLD_WIDTH -
+            camera.width
+        )
+    );
+
+    camera.y = Math.max(
+        0,
+        Math.min(
+            camera.y,
+            WORLD_HEIGHT -
+            camera.height
+        )
+    );
+
+}
+
+// ==================================================
+// DRAW WORLD
+// ==================================================
+
+function drawWorld() {
 
     // Background
+
     ctx.fillStyle = "#20242b";
 
     ctx.fillRect(
         0,
         0,
-        GAME_WIDTH,
-        GAME_HEIGHT
+        VIEW_WIDTH,
+        VIEW_HEIGHT
     );
 
-    // Border
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 4;
+    // Grid
 
-    ctx.strokeRect(
-        2,
-        2,
-        GAME_WIDTH - 4,
-        GAME_HEIGHT - 4
-    );
+    const gridSize = 100;
 
-    // Player
+    ctx.strokeStyle =
+        "rgba(255,255,255,0.08)";
+
+    ctx.lineWidth = 1;
+
+    const startX =
+        Math.floor(camera.x / gridSize) *
+        gridSize;
+
+    const startY =
+        Math.floor(camera.y / gridSize) *
+        gridSize;
+
+    for (
+        let x = startX;
+        x < camera.x + VIEW_WIDTH;
+        x += gridSize
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x - camera.x,
+            0
+        );
+
+        ctx.lineTo(
+            x - camera.x,
+            VIEW_HEIGHT
+        );
+
+        ctx.stroke();
+
+    }
+
+    for (
+        let y = startY;
+        y < camera.y + VIEW_HEIGHT;
+        y += gridSize
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            y - camera.y
+        );
+
+        ctx.lineTo(
+            VIEW_WIDTH,
+            y - camera.y
+        );
+
+        ctx.stroke();
+
+    }
+
+}
+
+// ==================================================
+// DRAW PLAYER
+// ==================================================
+
+function drawPlayer() {
+
+    const screenX =
+        player.x - camera.x;
+
+    const screenY =
+        player.y - camera.y;
+
     ctx.fillStyle = "#4da6ff";
 
     ctx.fillRect(
-        player.x,
-        player.y,
+        screenX,
+        screenY,
         player.width,
         player.height
     );
 
-    // Title
+}
+
+// ==================================================
+// DRAW UI
+// ==================================================
+
+function drawUI() {
+
     ctx.fillStyle = "#ffffff";
+
     ctx.font = "20px Arial";
 
     ctx.fillText(
@@ -223,18 +419,47 @@ function draw() {
         20,
         35
     );
+
+    ctx.font = "16px Arial";
+
+    ctx.fillText(
+        `World: ${WORLD_WIDTH} × ${WORLD_HEIGHT}`,
+        20,
+        60
+    );
+
 }
 
-// =========================
+// ==================================================
+// DRAW
+// ==================================================
+
+function draw() {
+
+    drawWorld();
+
+    drawPlayer();
+
+    drawUI();
+
+}
+
+// ==================================================
 // GAME LOOP
-// =========================
+// ==================================================
 
 function gameLoop() {
 
-    update();
+    updatePlayer();
+
+    updateCamera();
+
     draw();
 
-    requestAnimationFrame(gameLoop);
+    requestAnimationFrame(
+        gameLoop
+    );
+
 }
 
 gameLoop();
