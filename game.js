@@ -295,122 +295,34 @@ function updatePlayer() {
 
 function updateCamera() {
 
-    // Keep player near the center
-
-    camera.x =
+    // Keep player centered when possible
+    const targetX =
         player.x +
         player.width / 2 -
         camera.width / 2;
 
-    camera.y =
+    const targetY =
         player.y +
         player.height / 2 -
         camera.height / 2;
 
-    // Stop camera at world boundaries
-
+    // Stop camera at left/right world borders
     camera.x = Math.max(
         0,
         Math.min(
-            camera.x,
+            targetX,
             WORLD_WIDTH - camera.width
         )
     );
 
+    // Stop camera at top/bottom world borders
     camera.y = Math.max(
         0,
         Math.min(
-            camera.y,
+            targetY,
             WORLD_HEIGHT - camera.height
         )
     );
-}
-
-// ==================================================
-// DRAW WORLD
-// ==================================================
-
-function drawWorld() {
-
-    // Background
-
-    ctx.fillStyle = "#20242b";
-
-    ctx.fillRect(
-        0,
-        0,
-        VIEW_WIDTH,
-        VIEW_HEIGHT
-    );
-
-    // Grid
-
-    const gridSize = 100;
-
-    ctx.strokeStyle =
-        "rgba(255,255,255,0.08)";
-
-    ctx.lineWidth = 1;
-
-    const startX =
-        Math.floor(camera.x / gridSize) *
-        gridSize;
-
-    const startY =
-        Math.floor(camera.y / gridSize) *
-        gridSize;
-
-    // Vertical lines
-
-    for (
-        let x = startX;
-        x <= camera.x + camera.width;
-        x += gridSize
-    ) {
-
-        const screenX =
-            x - camera.x;
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            screenX,
-            0
-        );
-
-        ctx.lineTo(
-            screenX,
-            VIEW_HEIGHT
-        );
-
-        ctx.stroke();
-    }
-
-    // Horizontal lines
-
-    for (
-        let y = startY;
-        y <= camera.y + camera.height;
-        y += gridSize
-    ) {
-
-        const screenY =
-            y - camera.y;
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            0,
-            screenY
-        );
-
-        ctx.lineTo(
-            VIEW_WIDTH,
-            screenY
-        );
-
-        ctx.stroke();
-    }
 }
 
 // ==================================================
