@@ -331,11 +331,18 @@ function updateCamera() {
 
 function drawPlayer() {
 
-    const screenX =
-        player.x - camera.x;
+    const screenX = player.x - camera.x;
+    const screenY = player.y - camera.y;
 
-    const screenY =
-        player.y - camera.y;
+    // Only draw if player is inside the camera
+    if (
+        screenX + player.width < 0 ||
+        screenX > VIEW_WIDTH ||
+        screenY + player.height < 0 ||
+        screenY > VIEW_HEIGHT
+    ) {
+        return;
+    }
 
     ctx.fillStyle = "#4da6ff";
 
@@ -344,23 +351,6 @@ function drawPlayer() {
         screenY,
         player.width,
         player.height
-    );
-}
-
-// ==================================================
-// DRAW UI
-// ==================================================
-
-function drawUI() {
-
-    ctx.fillStyle = "#ffffff";
-
-    ctx.font = "20px Arial";
-
-    ctx.fillText(
-        "Deadline Dash - V0.1",
-        20,
-        35
     );
 }
 
