@@ -52,13 +52,8 @@ function resizeGame() {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
-    /*
-     * Keep the game at a fixed logical resolution.
-     *
-     * The screen only changes the DISPLAY SIZE.
-     * Gameplay coordinates never change.
-     */
-
+    // Keep the 900x600 gameplay viewport fixed.
+    // Scale it to fit completely inside the mobile screen.
     const scale = Math.min(
         screenWidth / VIEW_WIDTH,
         screenHeight / VIEW_HEIGHT
@@ -70,14 +65,6 @@ function resizeGame() {
     canvas.style.height =
         `${VIEW_HEIGHT * scale}px`;
 }
-
-window.addEventListener(
-    "resize",
-    resizeGame
-);
-
-resizeGame();
-
 // ==================================================
 // INPUT
 // ==================================================
