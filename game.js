@@ -325,6 +325,32 @@ function startDeadlineTimer() {
 }
 
 // ==================================================
+// UPDATE TIMER DISPLAY
+// ==================================================
+
+function updateTimerDisplay() {
+
+    const timer =
+        document.getElementById("deadline-timer");
+
+    if (!timer) {
+        return;
+    }
+
+    const minutes =
+        Math.floor(timeLeft / 60);
+
+    const seconds =
+        timeLeft % 60;
+
+    timer.textContent =
+        "Time Left: " +
+        String(minutes).padStart(2, "0") +
+        ":" +
+        String(seconds).padStart(2, "0");
+}
+
+// ==================================================
 // WORKSTATION INTERACTION
 // ==================================================
 
