@@ -332,6 +332,7 @@ const assignment = {
 // ==================================================
 
 let currentCAssignment = null;
+let lastCAssignmentIndex = -1;
 
 // ==================================================
 // WORKSTATION
@@ -648,6 +649,7 @@ updateTimerDisplay();
     // Reset mini-game
 
     miniGameOpen = false;
+    currentCAssignment = null;
 
 
     // Hide screens
@@ -692,15 +694,25 @@ function openMiniGame() {
 
     // Pick a random C assignment
 
-    const randomIndex =
+    let randomIndex;
+
+do {
+
+    randomIndex =
         Math.floor(
             Math.random() *
             cAssignments.length
         );
 
+} while (
+    randomIndex === lastCAssignmentIndex &&
+    cAssignments.length > 1
+);
 
-    currentCAssignment =
-        cAssignments[randomIndex];
+lastCAssignmentIndex = randomIndex;
+
+currentCAssignment =
+    cAssignments[randomIndex];
 
 
     // Update assignment information
