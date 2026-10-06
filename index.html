@@ -43,6 +43,61 @@
                 Status: Not Started
             </p>
         </div>
+        <!-- ==================================================
+     C PROGRAMMING MINI-GAME
+     ================================================== -->
+
+<div id="mini-game">
+
+    <div id="mini-game-box">
+
+        <h2>C PROGRAMMING</h2>
+
+        <p class="mini-game-instruction">
+            Find the syntax error in this code:
+        </p>
+
+        <pre id="code-question">#include &lt;stdio.h&gt;
+
+int main() {
+    int x = 10
+    printf("%d", x);
+    return 0;
+}</pre>
+
+        <p class="mini-game-question">
+            Which line contains the syntax error?
+        </p>
+
+        <div id="answer-buttons">
+
+            <button onclick="checkAnswer(1)">
+                Line 1
+            </button>
+
+            <button onclick="checkAnswer(2)">
+                Line 2
+            </button>
+
+            <button onclick="checkAnswer(3)">
+                Line 3
+            </button>
+
+            <button onclick="checkAnswer(4)">
+                Line 4
+            </button>
+
+            <button onclick="checkAnswer(5)">
+                Line 5
+            </button>
+
+        </div>
+
+        <p id="mini-game-result"></p>
+
+    </div>
+
+</div>
         <div id="joystick">
             <div id="joystick-knob"></div>
         </div>
