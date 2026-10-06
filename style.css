@@ -24,7 +24,6 @@ body {
    ================================================== */
 
 #game-container {
-
     position: relative;
 
     width: 100vw;
@@ -39,33 +38,25 @@ body {
 
     background: #111;
 }
-
 /* ==================================================
    GAME CANVAS
    ================================================== */
 
 canvas {
-
     display: block;
-
-    /*
-     * JavaScript controls the displayed size.
-     * The actual game remains 900 x 600.
-     */
 
     width: 900px;
     height: 600px;
 
-    max-width: none;
-    max-height: none;
-
-    flex-shrink: 0;
+    max-width: 100%;
+    max-height: 100%;
 
     background: #20242b;
 
     touch-action: none;
-}
 
+    flex-shrink: 0;
+}
 /* ==================================================
    JOYSTICK
    ================================================== */
@@ -120,14 +111,12 @@ canvas {
    MOBILE LANDSCAPE
    ================================================== */
 
-@media (pointer: coarse)
-       and (orientation: landscape) {
+@media (pointer: coarse) and (orientation: landscape) {
 
     #joystick {
         display: block;
     }
 }
-
 /* ==================================================
    PORTRAIT MESSAGE
    ================================================== */
