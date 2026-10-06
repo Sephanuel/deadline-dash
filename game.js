@@ -1,21 +1,24 @@
+// ==================================================
+// CANVAS SETUP
+// ==================================================
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-const joystick = document.getElementById("joystick");
-const joystickKnob = document.getElementById("joystick-knob");
+const GAME_WIDTH = 900;
+const GAME_HEIGHT = 600;
+
+canvas.width = GAME_WIDTH;
+canvas.height = GAME_HEIGHT;
+
 
 // ==================================================
-// GAME SETTINGS
+// WORLD
 // ==================================================
-
-const VIEW_WIDTH = 900;
-const VIEW_HEIGHT = 600;
 
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
 
-canvas.width = VIEW_WIDTH;
-canvas.height = VIEW_HEIGHT;
 
 // ==================================================
 // PLAYER
@@ -24,12 +27,11 @@ canvas.height = VIEW_HEIGHT;
 const player = {
     x: 300,
     y: 300,
-
     width: 32,
     height: 32,
-
     speed: 4
 };
+
 
 // ==================================================
 // CAMERA
@@ -38,10 +40,58 @@ const player = {
 const camera = {
     x: 0,
     y: 0,
-
-    width: VIEW_WIDTH,
-    height: VIEW_HEIGHT
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT
 };
+
+
+// ==================================================
+// INPUT
+// ==================================================
+
+const input = {
+    x: 0,
+    y: 0
+};
+
+const keys = {};
+
+
+// ==================================================
+// KEYBOARD INPUT
+// ==================================================
+
+window.addEventListener("keydown", function (event) {
+    keys[event.key.toLowerCase()] = true;
+});
+
+window.addEventListener("keyup", function (event) {
+    keys[event.key.toLowerCase()] = false;
+});
+
+
+function updateKeyboardInput() {
+
+    input.x = 0;
+    input.y = 0;
+
+    if (keys["w"] || keys["arrowup"]) {
+        input.y = -1;
+    }
+
+    if (keys["s"] || keys["arrowdown"]) {
+        input.y = 1;
+    }
+
+    if (keys["a"] || keys["arrowleft"]) {
+        input.x = -1;
+    }
+
+    if (keys["d"] || keys["arrowright"]) {
+        input.x = 1;
+    }
+}
+
 
 // ==================================================
 // ASSIGNMENT
@@ -54,19 +104,15 @@ const assignment = {
     completed: false
 };
 
-// ==================================================
-// ASSIGNMENT OBJECT
-// ==================================================
 
 const assignmentObject = {
     x: 500,
     y: 400,
-
     width: 40,
     height: 40,
-
     collected: false
 };
+
 
 // ==================================================
 // WORKSTATION
@@ -75,227 +121,17 @@ const assignmentObject = {
 const workstation = {
     x: 900,
     y: 500,
-
     width: 80,
     height: 60,
-
     active: false
 };
 
-// ==================================================
-// DISPLAY
-// ==================================================
-
-function resizeGame() {
-
-    let screenWidth = window.innerWidth;
-    let screenHeight = window.innerHeight;
-
-    // Use the mobile visual viewport when available.
-    if (window.visualViewport) {
-        screenWidth = window.visualViewport.width;
-        screenHeight = window.visualViewport.height;
-    }
-
-    // Always fit the COMPLETE 900 × 600 game
-    // inside the available screen.
-    const scale = Math.min(
-        screenWidth / VIEW_WIDTH,
-        screenHeight / VIEW_HEIGHT
-    );
-
-    canvas.style.width =
-        `${VIEW_WIDTH * scale}px`;
-
-    canvas.style.height =
-        `${VIEW_HEIGHT * scale}px`;
-}
-
-window.addEventListener(
-    "resize",
-    resizeGame
-);
-
-resizeGame();
-
-if (window.visualViewport) {
-
-    window.visualViewport.addEventListener(
-        "resize",
-        resizeGame
-    );
-}
 
 // ==================================================
-// INPUT
+// MINI GAME
 // ==================================================
 
-const keys = {};
-
-const input = {
-    x: 0,
-    y: 0
-};
-
-let joystickActive = false;
-
-// Keyboard
-
-window.addEventListener("keydown", (event) => {
-
-    keys[event.key.toLowerCase()] = true;
-
-});
-
-window.addEventListener("keyup", (event) => {
-
-    keys[event.key.toLowerCase()] = false;
-
-});
-
-// ==================================================
-// KEYBOARD INPUT
-// ==================================================
-
-function updateKeyboardInput() {
-
-    let x = 0;
-    let y = 0;
-
-    if (keys["a"] || keys["arrowleft"]) {
-        x -= 1;
-    }
-
-    if (keys["d"] || keys["arrowright"]) {
-        x += 1;
-    }
-
-    if (keys["w"] || keys["arrowup"]) {
-        y -= 1;
-    }
-
-    if (keys["s"] || keys["arrowdown"]) {
-        y += 1;
-    }
-
-    if (x !== 0 || y !== 0) {
-
-        const length =
-            Math.sqrt(x * x + y * y);
-
-        input.x = x / length;
-        input.y = y / length;
-
-    } else if (!joystickActive) {
-
-        input.x = 0;
-        input.y = 0;
-    }
-}
-
-// ==================================================
-// MOBILE JOYSTICK
-// ==================================================
-
-const joystickRadius = 60;
-
-function updateJoystick(clientX, clientY) {
-
-    const rect =
-        joystick.getBoundingClientRect();
-
-    const centerX =
-        rect.left + rect.width / 2;
-
-    const centerY =
-        rect.top + rect.height / 2;
-
-    let dx =
-        clientX - centerX;
-
-    let dy =
-        clientY - centerY;
-
-    const distance =
-        Math.sqrt(dx * dx + dy * dy);
-
-    if (distance > joystickRadius) {
-
-        dx =
-            (dx / distance) *
-            joystickRadius;
-
-        dy =
-            (dy / distance) *
-            joystickRadius;
-    }
-
-    joystickKnob.style.transform =
-        `translate(
-            calc(-50% + ${dx}px),
-            calc(-50% + ${dy}px)
-        )`;
-
-    input.x =
-        dx / joystickRadius;
-
-    input.y =
-        dy / joystickRadius;
-}
-
-function resetJoystick() {
-
-    joystickActive = false;
-
-    input.x = 0;
-    input.y = 0;
-
-    joystickKnob.style.transform =
-        "translate(-50%, -50%)";
-}
-
-joystick.addEventListener(
-    "pointerdown",
-    (event) => {
-
-        joystickActive = true;
-
-        joystick.setPointerCapture(
-            event.pointerId
-        );
-
-        updateJoystick(
-            event.clientX,
-            event.clientY
-        );
-    }
-);
-
-joystick.addEventListener(
-    "pointermove",
-    (event) => {
-
-        if (!joystickActive) {
-            return;
-        }
-
-        updateJoystick(
-            event.clientX,
-            event.clientY
-        );
-    }
-);
-
-joystick.addEventListener(
-    "pointerup",
-    resetJoystick
-);
-
-joystick.addEventListener(
-    "pointercancel",
-    resetJoystick
-);
-
+let miniGameOpen = false;
 // ==================================================
 // ASSIGNMENT PICKUP
 // ==================================================
@@ -307,21 +143,10 @@ function checkAssignmentPickup() {
     }
 
     const touching =
-        player.x <
-            assignmentObject.x +
-            assignmentObject.width &&
-
-        player.x +
-            player.width >
-            assignmentObject.x &&
-
-        player.y <
-            assignmentObject.y +
-            assignmentObject.height &&
-
-        player.y +
-            player.height >
-            assignmentObject.y;
+        player.x < assignmentObject.x + assignmentObject.width &&
+        player.x + player.width > assignmentObject.x &&
+        player.y < assignmentObject.y + assignmentObject.height &&
+        player.y + player.height > assignmentObject.y;
 
     if (touching) {
 
@@ -331,10 +156,10 @@ function checkAssignmentPickup() {
 
         document.getElementById(
             "assignment-status"
-        ).textContent =
-            "Status: Started";
+        ).textContent = "Status: Started";
     }
 }
+
 
 // ==================================================
 // WORKSTATION INTERACTION
@@ -350,35 +175,108 @@ function checkWorkstationInteraction() {
         return;
     }
 
+    if (miniGameOpen) {
+        return;
+    }
+
     const touching =
-        player.x <
-            workstation.x + workstation.width &&
-
-        player.x + player.width >
-            workstation.x &&
-
-        player.y <
-            workstation.y + workstation.height &&
-
-        player.y + player.height >
-            workstation.y;
+        player.x < workstation.x + workstation.width &&
+        player.x + player.width > workstation.x &&
+        player.y < workstation.y + workstation.height &&
+        player.y + player.height > workstation.y;
 
     if (touching) {
 
         workstation.active = true;
 
+        assignment.status = "Working";
+
         document.getElementById(
             "assignment-status"
-        ).textContent =
-            "Status: Ready at workstation";
+        ).textContent = "Status: Working";
+
+        openMiniGame();
     }
 }
 
+
+// ==================================================
+// OPEN MINI GAME
+// ==================================================
+
+function openMiniGame() {
+
+    miniGameOpen = true;
+
+    document.getElementById(
+        "mini-game"
+    ).style.display = "flex";
+
+    document.getElementById(
+        "mini-game-result"
+    ).textContent = "";
+}
+
+
+// ==================================================
+// MINI GAME ANSWER
+// ==================================================
+
+function checkAnswer(answer) {
+
+    const result =
+        document.getElementById(
+            "mini-game-result"
+        );
+
+
+    // Correct answer = Line 3
+
+    if (answer === 3) {
+
+        result.textContent =
+            "Correct! Syntax error found.";
+
+        assignment.completed = true;
+
+        assignment.status = "Completed";
+
+        workstation.active = false;
+
+        document.getElementById(
+            "assignment-status"
+        ).textContent = "Status: Completed";
+
+
+        setTimeout(function () {
+
+            document.getElementById(
+                "mini-game"
+            ).style.display = "none";
+
+            miniGameOpen = false;
+
+        }, 1000);
+
+    }
+
+    else {
+
+        result.textContent =
+            "Wrong answer. Try again.";
+
+    }
+}
 // ==================================================
 // PLAYER UPDATE
 // ==================================================
 
 function updatePlayer() {
+
+    // Stop player movement while mini-game is open
+    if (miniGameOpen) {
+        return;
+    }
 
     updateKeyboardInput();
 
@@ -390,7 +288,10 @@ function updatePlayer() {
         player.y +
         input.y * player.speed;
 
+
+    // ==================================================
     // WORLD BOUNDARIES
+    // ==================================================
 
     nextX = Math.max(
         0,
@@ -412,9 +313,11 @@ function updatePlayer() {
         nextY
     );
 
+
     player.x = nextX;
     player.y = nextY;
 }
+
 
 // ==================================================
 // CAMERA UPDATE
@@ -432,11 +335,15 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
+
     const maxCameraX =
-        WORLD_WIDTH - camera.width;
+        WORLD_WIDTH -
+        camera.width;
 
     const maxCameraY =
-        WORLD_HEIGHT - camera.height;
+        WORLD_HEIGHT -
+        camera.height;
+
 
     camera.x = Math.max(
         0,
@@ -446,6 +353,7 @@ function updateCamera() {
         )
     );
 
+
     camera.y = Math.max(
         0,
         Math.min(
@@ -454,108 +362,73 @@ function updateCamera() {
         )
     );
 }
-
 // ==================================================
 // DRAW WORLD
 // ==================================================
 
 function drawWorld() {
 
-    ctx.fillStyle = "#20242b";
+    ctx.fillStyle = "#1b1f24";
 
     ctx.fillRect(
         0,
         0,
-        VIEW_WIDTH,
-        VIEW_HEIGHT
+        GAME_WIDTH,
+        GAME_HEIGHT
     );
 
-    // ==================================================
-    // GRID
-    // ==================================================
 
-    const gridSize = 100;
+    const gridSize = 50;
 
-    ctx.strokeStyle =
-        "rgba(255,255,255,0.08)";
-
+    ctx.strokeStyle = "#2c323a";
     ctx.lineWidth = 1;
 
+
     const startX =
-        Math.floor(camera.x / gridSize) *
-        gridSize;
+        -(camera.x % gridSize);
 
     const startY =
-        Math.floor(camera.y / gridSize) *
-        gridSize;
+        -(camera.y % gridSize);
 
-    // Vertical lines
 
     for (
         let x = startX;
-        x <= camera.x + camera.width;
+        x < GAME_WIDTH;
         x += gridSize
     ) {
 
-        const screenX =
-            x - camera.x;
-
         ctx.beginPath();
 
-        ctx.moveTo(
-            screenX,
-            0
-        );
+        ctx.moveTo(x, 0);
 
         ctx.lineTo(
-            screenX,
-            VIEW_HEIGHT
+            x,
+            GAME_HEIGHT
         );
 
         ctx.stroke();
     }
 
-    // Horizontal lines
 
     for (
         let y = startY;
-        y <= camera.y + camera.height;
+        y < GAME_HEIGHT;
         y += gridSize
     ) {
 
-        const screenY =
-            y - camera.y;
-
         ctx.beginPath();
 
-        ctx.moveTo(
-            0,
-            screenY
-        );
+        ctx.moveTo(0, y);
 
         ctx.lineTo(
-            VIEW_WIDTH,
-            screenY
+            GAME_WIDTH,
+            y
         );
 
         ctx.stroke();
     }
-
-    // ==================================================
-    // WORLD BORDER
-    // ==================================================
-
-    ctx.strokeStyle = "#ffffff";
-
-    ctx.lineWidth = 5;
-
-    ctx.strokeRect(
-        -camera.x,
-        -camera.y,
-        WORLD_WIDTH,
-        WORLD_HEIGHT
-    );
 }
+
 
 // ==================================================
 // DRAW ASSIGNMENT
@@ -567,13 +440,18 @@ function drawAssignment() {
         return;
     }
 
+
     const screenX =
-        assignmentObject.x - camera.x;
+        assignmentObject.x -
+        camera.x;
 
     const screenY =
-        assignmentObject.y - camera.y;
+        assignmentObject.y -
+        camera.y;
+
 
     ctx.fillStyle = "#ffd54a";
+
 
     ctx.fillRect(
         screenX,
@@ -582,9 +460,10 @@ function drawAssignment() {
         assignmentObject.height
     );
 
-    ctx.strokeStyle = "#ffffff";
 
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 2;
+
 
     ctx.strokeRect(
         screenX,
@@ -593,6 +472,7 @@ function drawAssignment() {
         assignmentObject.height
     );
 }
+
 
 // ==================================================
 // DRAW WORKSTATION
@@ -601,12 +481,16 @@ function drawAssignment() {
 function drawWorkstation() {
 
     const screenX =
-        workstation.x - camera.x;
+        workstation.x -
+        camera.x;
 
     const screenY =
-        workstation.y - camera.y;
+        workstation.y -
+        camera.y;
+
 
     ctx.fillStyle = "#6b7280";
+
 
     ctx.fillRect(
         screenX,
@@ -615,7 +499,11 @@ function drawWorkstation() {
         workstation.height
     );
 
+
+    // Monitor
+
     ctx.fillStyle = "#38bdf8";
+
 
     ctx.fillRect(
         screenX + 10,
@@ -624,9 +512,12 @@ function drawWorkstation() {
         30
     );
 
-    ctx.strokeStyle = "#ffffff";
 
+    // Border
+
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 2;
+
 
     ctx.strokeRect(
         screenX,
@@ -635,9 +526,12 @@ function drawWorkstation() {
         workstation.height
     );
 
-    ctx.fillStyle = "#ffffff";
 
+    // Label
+
+    ctx.fillStyle = "#ffffff";
     ctx.font = "14px Arial";
+
 
     ctx.fillText(
         "WORK",
@@ -645,6 +539,46 @@ function drawWorkstation() {
         screenY + 53
     );
 }
+
+
+// ==================================================
+// DRAW PLAYER
+// ==================================================
+
+function drawPlayer() {
+
+    const screenX =
+        player.x -
+        camera.x;
+
+    const screenY =
+        player.y -
+        camera.y;
+
+
+    ctx.fillStyle = "#4ade80";
+
+
+    ctx.fillRect(
+        screenX,
+        screenY,
+        player.width,
+        player.height
+    );
+
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+
+
+    ctx.strokeRect(
+        screenX,
+        screenY,
+        player.width,
+        player.height
+    );
+}
+
 
 // ==================================================
 // OBJECTIVE ARROW
@@ -656,6 +590,7 @@ function drawObjectiveArrow() {
         return;
     }
 
+
     const playerCenterX =
         player.x +
         player.width / 2;
@@ -663,6 +598,7 @@ function drawObjectiveArrow() {
     const playerCenterY =
         player.y +
         player.height / 2;
+
 
     const objectiveCenterX =
         assignmentObject.x +
@@ -672,6 +608,7 @@ function drawObjectiveArrow() {
         assignmentObject.y +
         assignmentObject.height / 2;
 
+
     const dx =
         objectiveCenterX -
         playerCenterX;
@@ -680,10 +617,13 @@ function drawObjectiveArrow() {
         objectiveCenterY -
         playerCenterY;
 
+
     const angle =
         Math.atan2(dy, dx);
 
+
     const arrowDistance = 55;
+
 
     const screenPlayerX =
         playerCenterX -
@@ -692,6 +632,7 @@ function drawObjectiveArrow() {
     const screenPlayerY =
         playerCenterY -
         camera.y;
+
 
     const arrowX =
         screenPlayerX +
@@ -703,104 +644,75 @@ function drawObjectiveArrow() {
         Math.sin(angle) *
         arrowDistance;
 
+
     ctx.save();
+
 
     ctx.translate(
         arrowX,
         arrowY
     );
 
+
     ctx.rotate(angle);
+
 
     ctx.fillStyle = "#ffd54a";
 
+
     ctx.beginPath();
 
-    ctx.moveTo(
-        18,
-        0
-    );
 
-    ctx.lineTo(
-        -10,
-        -11
-    );
+    ctx.moveTo(18, 0);
 
-    ctx.lineTo(
-        -5,
-        0
-    );
+    ctx.lineTo(-10, -11);
 
-        ctx.lineTo(
-        -10,
-        11
-    );
+    ctx.lineTo(-5, 0);
+
+    ctx.lineTo(-10, 11);
+
 
     ctx.closePath();
 
+
     ctx.fill();
 
-    ctx.strokeStyle = "#ffffff";
 
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 2;
 
+
     ctx.stroke();
+
 
     ctx.restore();
 }
 
-// ==================================================
-// DRAW PLAYER
-// ==================================================
-
-function drawPlayer() {
-
-    const screenX =
-        player.x - camera.x;
-
-    const screenY =
-        player.y - camera.y;
-
-    ctx.fillStyle = "#4da6ff";
-
-    ctx.fillRect(
-        screenX,
-        screenY,
-        player.width,
-        player.height
-    );
-
-    ctx.strokeStyle = "#ffffff";
-
-    ctx.lineWidth = 2;
-
-    ctx.strokeRect(
-        screenX,
-        screenY,
-        player.width,
-        player.height
-    );
-}
 
 // ==================================================
-// DRAW UI
+// GAME UI
 // ==================================================
 
 function drawUI() {
 
     ctx.fillStyle = "#ffffff";
 
-    ctx.font = "20px Arial";
+    ctx.font = "14px Arial";
+
 
     ctx.fillText(
-        "Deadline Dash - V0.1",
-        20,
-        35
+        "X: " +
+        Math.floor(player.x) +
+        "  Y: " +
+        Math.floor(player.y),
+        15,
+        25
     );
 }
 
+
 // ==================================================
-// DRAW
+// DRAW EVERYTHING
 // ==================================================
 
 function draw() {
@@ -818,6 +730,67 @@ function draw() {
     drawUI();
 }
 
+
+// ==================================================
+// RESPONSIVE CANVAS DISPLAY
+// ==================================================
+
+function resizeGame() {
+
+    const viewport =
+        window.visualViewport;
+
+
+    const viewportWidth =
+        viewport
+            ? viewport.width
+            : window.innerWidth;
+
+
+    const viewportHeight =
+        viewport
+            ? viewport.height
+            : window.innerHeight;
+
+
+    const scale = Math.min(
+
+        viewportWidth /
+        GAME_WIDTH,
+
+        viewportHeight /
+        GAME_HEIGHT
+
+    );
+
+
+    canvas.style.width =
+        GAME_WIDTH * scale + "px";
+
+
+    canvas.style.height =
+        GAME_HEIGHT * scale + "px";
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeGame
+);
+
+
+if (window.visualViewport) {
+
+    window.visualViewport.addEventListener(
+        "resize",
+        resizeGame
+    );
+}
+
+
+resizeGame();
+
+
 // ==================================================
 // GAME LOOP
 // ==================================================
@@ -834,9 +807,15 @@ function gameLoop() {
 
     draw();
 
+
     requestAnimationFrame(
         gameLoop
     );
 }
+
+
+// ==================================================
+// START GAME
+// ==================================================
 
 gameLoop();
