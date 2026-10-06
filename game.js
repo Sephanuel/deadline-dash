@@ -69,6 +69,20 @@ const assignmentObject = {
 };
 
 // ==================================================
+// WORKSTATION
+// ==================================================
+
+const workstation = {
+    x: 900,
+    y: 500,
+
+    width: 80,
+    height: 60,
+
+    active: false
+};
+
+// ==================================================
 // DISPLAY
 // ==================================================
 
@@ -323,6 +337,44 @@ function checkAssignmentPickup() {
 }
 
 // ==================================================
+// WORKSTATION INTERACTION
+// ==================================================
+
+function checkWorkstationInteraction() {
+
+    if (!assignmentObject.collected) {
+        return;
+    }
+
+    if (assignment.completed) {
+        return;
+    }
+
+    const touching =
+        player.x <
+            workstation.x + workstation.width &&
+
+        player.x + player.width >
+            workstation.x &&
+
+        player.y <
+            workstation.y + workstation.height &&
+
+        player.y + player.height >
+            workstation.y;
+
+    if (touching) {
+
+        workstation.active = true;
+
+        document.getElementById(
+            "assignment-status"
+        ).textContent =
+            "Status: Ready at workstation";
+    }
+}
+
+// ==================================================
 // PLAYER UPDATE
 // ==================================================
 
@@ -543,6 +595,58 @@ function drawAssignment() {
 }
 
 // ==================================================
+// DRAW WORKSTATION
+// ==================================================
+
+function drawWorkstation() {
+
+    const screenX =
+        workstation.x - camera.x;
+
+    const screenY =
+        workstation.y - camera.y;
+
+    ctx.fillStyle = "#6b7280";
+
+    ctx.fillRect(
+        screenX,
+        screenY,
+        workstation.width,
+        workstation.height
+    );
+
+    ctx.fillStyle = "#38bdf8";
+
+    ctx.fillRect(
+        screenX + 10,
+        screenY + 8,
+        workstation.width - 20,
+        30
+    );
+
+    ctx.strokeStyle = "#ffffff";
+
+    ctx.lineWidth = 2;
+
+    ctx.strokeRect(
+        screenX,
+        screenY,
+        workstation.width,
+        workstation.height
+    );
+
+    ctx.fillStyle = "#ffffff";
+
+    ctx.font = "14px Arial";
+
+    ctx.fillText(
+        "WORK",
+        screenX + 20,
+        screenY + 53
+    );
+}
+
+// ==================================================
 // OBJECTIVE ARROW
 // ==================================================
 
@@ -705,6 +809,8 @@ function draw() {
 
     drawAssignment();
 
+    drawWorkstation();
+
     drawPlayer();
 
     drawObjectiveArrow();
@@ -721,6 +827,8 @@ function gameLoop() {
     updatePlayer();
 
     checkAssignmentPickup();
+
+    checkWorkstation();
 
     updateCamera();
 
