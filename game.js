@@ -828,7 +828,7 @@ function gameLoop() {
 
     checkAssignmentPickup();
 
-    checkWorkstation();
+    checkWorkstationInteraction();
 
     updateCamera();
 
