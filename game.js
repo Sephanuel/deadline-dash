@@ -8,14 +8,25 @@ const joystickKnob = document.getElementById("joystick-knob");
 // GAME SETTINGS
 // ==================================================
 
-const VIEW_WIDTH = 900;
-const VIEW_HEIGHT = 600;
+// Base gameplay resolution.
+// This controls the actual gameplay scale.
+const BASE_WIDTH = 900;
+const BASE_HEIGHT = 600;
 
+// Larger world than the visible screen.
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
 
-canvas.width = VIEW_WIDTH;
-canvas.height = VIEW_HEIGHT;
+// Camera zoom.
+// 1 = normal gameplay scale.
+const CAMERA_ZOOM = 1;
+
+// ==================================================
+// CANVAS
+// ==================================================
+
+canvas.width = BASE_WIDTH;
+canvas.height = BASE_HEIGHT;
 
 // ==================================================
 // INPUT
@@ -33,15 +44,11 @@ let joystickActive = false;
 // Keyboard
 
 window.addEventListener("keydown", (event) => {
-
     keys[event.key.toLowerCase()] = true;
-
 });
 
 window.addEventListener("keyup", (event) => {
-
     keys[event.key.toLowerCase()] = false;
-
 });
 
 // ==================================================
@@ -49,7 +56,6 @@ window.addEventListener("keyup", (event) => {
 // ==================================================
 
 const player = {
-
     x: 300,
     y: 300,
 
@@ -57,7 +63,6 @@ const player = {
     height: 32,
 
     speed: 4
-
 };
 
 // ==================================================
@@ -65,14 +70,74 @@ const player = {
 // ==================================================
 
 const camera = {
-
     x: 0,
     y: 0,
 
-    width: VIEW_WIDTH,
-    height: VIEW_HEIGHT
-
+    width: BASE_WIDTH,
+    height: BASE_HEIGHT
 };
+
+// ==================================================
+// RESPONSIVE CAMERA
+// ==================================================
+
+function updateCameraSize() {
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    // Keep gameplay scale consistent.
+    const screenRatio =
+        screenWidth / screenHeight;
+
+    const baseRatio =
+        BASE_WIDTH / BASE_HEIGHT;
+
+    if (screenRatio > baseRatio) {
+
+        // Wider screen.
+        // Increase horizontal view without
+        // changing vertical gameplay scale.
+
+        camera.height = BASE_HEIGHT;
+
+        camera.width =
+            BASE_HEIGHT * screenRatio;
+
+    } else {
+
+        // Taller/narrower screen.
+        // Increase vertical view without
+        // changing horizontal gameplay scale.
+
+        camera.width = BASE_WIDTH;
+
+        camera.height =
+            BASE_WIDTH / screenRatio;
+    }
+
+    // Prevent camera from becoming
+    // larger than the entire world.
+
+    camera.width = Math.min(
+        camera.width,
+        WORLD_WIDTH
+    );
+
+    camera.height = Math.min(
+        camera.height,
+        WORLD_HEIGHT
+    );
+}
+
+// Update when screen size changes.
+
+window.addEventListener(
+    "resize",
+    updateCameraSize
+);
+
+updateCameraSize();
 
 // ==================================================
 // KEYBOARD INPUT
@@ -101,25 +166,21 @@ function updateKeyboardInput() {
 
     if (x !== 0 || y !== 0) {
 
-        const length = Math.sqrt(
-            x * x + y * y
-        );
+        const length =
+            Math.sqrt(x * x + y * y);
 
         input.x = x / length;
         input.y = y / length;
 
-    }
-    else if (!joystickActive) {
+    } else if (!joystickActive) {
 
         input.x = 0;
         input.y = 0;
-
     }
-
 }
 
 // ==================================================
-// JOYSTICK
+// MOBILE JOYSTICK
 // ==================================================
 
 const joystickRadius = 60;
@@ -150,7 +211,6 @@ function updateJoystick(clientX, clientY) {
         dy =
             (dy / distance) *
             joystickRadius;
-
     }
 
     joystickKnob.style.transform =
@@ -164,7 +224,6 @@ function updateJoystick(clientX, clientY) {
 
     input.y =
         dy / joystickRadius;
-
 }
 
 function resetJoystick() {
@@ -176,7 +235,6 @@ function resetJoystick() {
 
     joystickKnob.style.transform =
         "translate(-50%, -50%)";
-
 }
 
 joystick.addEventListener(
@@ -193,7 +251,6 @@ joystick.addEventListener(
             event.clientX,
             event.clientY
         );
-
     }
 );
 
@@ -209,7 +266,6 @@ joystick.addEventListener(
             event.clientX,
             event.clientY
         );
-
     }
 );
 
@@ -232,12 +288,10 @@ function updatePlayer() {
     updateKeyboardInput();
 
     player.x +=
-        input.x *
-        player.speed;
+        input.x * player.speed;
 
     player.y +=
-        input.y *
-        player.speed;
+        input.y * player.speed;
 
     // World boundaries
 
@@ -245,8 +299,7 @@ function updatePlayer() {
         0,
         Math.min(
             player.x,
-            WORLD_WIDTH -
-            player.width
+            WORLD_WIDTH - player.width
         )
     );
 
@@ -254,20 +307,16 @@ function updatePlayer() {
         0,
         Math.min(
             player.y,
-            WORLD_HEIGHT -
-            player.height
+            WORLD_HEIGHT - player.height
         )
     );
-
 }
 
 // ==================================================
-// CAMERA UPDATE
+// CAMERA FOLLOW
 // ==================================================
 
 function updateCamera() {
-
-    // Keep player near the center
 
     camera.x =
         player.x +
@@ -279,14 +328,13 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
-    // Stop camera at world edges
+    // Keep camera inside world.
 
     camera.x = Math.max(
         0,
         Math.min(
             camera.x,
-            WORLD_WIDTH -
-            camera.width
+            WORLD_WIDTH - camera.width
         )
     );
 
@@ -294,11 +342,9 @@ function updateCamera() {
         0,
         Math.min(
             camera.y,
-            WORLD_HEIGHT -
-            camera.height
+            WORLD_HEIGHT - camera.height
         )
     );
-
 }
 
 // ==================================================
@@ -307,15 +353,13 @@ function updateCamera() {
 
 function drawWorld() {
 
-    // Background
-
     ctx.fillStyle = "#20242b";
 
     ctx.fillRect(
         0,
         0,
-        VIEW_WIDTH,
-        VIEW_HEIGHT
+        BASE_WIDTH,
+        BASE_HEIGHT
     );
 
     // Grid
@@ -337,48 +381,51 @@ function drawWorld() {
 
     for (
         let x = startX;
-        x < camera.x + VIEW_WIDTH;
+        x < camera.x + camera.width;
         x += gridSize
     ) {
+
+        const screenX =
+            x - camera.x;
 
         ctx.beginPath();
 
         ctx.moveTo(
-            x - camera.x,
+            screenX,
             0
         );
 
         ctx.lineTo(
-            x - camera.x,
-            VIEW_HEIGHT
+            screenX,
+            BASE_HEIGHT
         );
 
         ctx.stroke();
-
     }
 
     for (
         let y = startY;
-        y < camera.y + VIEW_HEIGHT;
+        y < camera.y + camera.height;
         y += gridSize
     ) {
+
+        const screenY =
+            y - camera.y;
 
         ctx.beginPath();
 
         ctx.moveTo(
             0,
-            y - camera.y
+            screenY
         );
 
         ctx.lineTo(
-            VIEW_WIDTH,
-            y - camera.y
+            BASE_WIDTH,
+            screenY
         );
 
         ctx.stroke();
-
     }
-
 }
 
 // ==================================================
@@ -401,7 +448,6 @@ function drawPlayer() {
         player.width,
         player.height
     );
-
 }
 
 // ==================================================
@@ -419,29 +465,68 @@ function drawUI() {
         20,
         35
     );
-
-    ctx.font = "16px Arial";
-
-    ctx.fillText(
-        `World: ${WORLD_WIDTH} × ${WORLD_HEIGHT}`,
-        20,
-        60
-    );
-
 }
 
 // ==================================================
-// DRAW
+// RENDER
 // ==================================================
 
-function draw() {
+function render() {
+
+    /*
+        Scale the base game to the available
+        screen while preserving its aspect ratio.
+    */
+
+    const screenWidth =
+        window.innerWidth;
+
+    const screenHeight =
+        window.innerHeight;
+
+    const scale =
+        Math.min(
+            screenWidth / BASE_WIDTH,
+            screenHeight / BASE_HEIGHT
+        );
+
+    const displayWidth =
+        BASE_WIDTH * scale;
+
+    const displayHeight =
+        BASE_HEIGHT * scale;
+
+    const offsetX =
+        (screenWidth - displayWidth) / 2;
+
+    const offsetY =
+        (screenHeight - displayHeight) / 2;
+
+    // Clear actual screen
+
+    ctx.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    // Draw game
 
     drawWorld();
-
     drawPlayer();
-
     drawUI();
 
+    // CSS handles final screen scaling.
 }
 
 // ==================================================
@@ -454,12 +539,11 @@ function gameLoop() {
 
     updateCamera();
 
-    draw();
+    render();
 
     requestAnimationFrame(
         gameLoop
     );
-
 }
 
 gameLoop();
