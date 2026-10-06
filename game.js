@@ -8,10 +8,18 @@ const joystickKnob = document.getElementById("joystick-knob");
 // GAME SETTINGS
 // ==================================================
 
-const BASE_HEIGHT = 600;
+// Fixed gameplay viewport.
+// This NEVER changes based on screen size.
+const VIEW_WIDTH = 900;
+const VIEW_HEIGHT = 600;
 
+// Larger world
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
+
+// Canvas drawing resolution
+canvas.width = VIEW_WIDTH;
+canvas.height = VIEW_HEIGHT;
 
 // ==================================================
 // INPUT
@@ -26,6 +34,7 @@ const input = {
 
 let joystickActive = false;
 
+// Keyboard input
 window.addEventListener("keydown", (event) => {
     keys[event.key.toLowerCase()] = true;
 });
@@ -56,12 +65,14 @@ const camera = {
     x: 0,
     y: 0,
 
-    width: 900,
-    height: BASE_HEIGHT
+    // IMPORTANT:
+    // These NEVER change with screen size.
+    width: VIEW_WIDTH,
+    height: VIEW_HEIGHT
 };
 
 // ==================================================
-// RESIZE CAMERA + CANVAS
+// RESPONSIVE DISPLAY
 // ==================================================
 
 function resizeGame() {
@@ -69,45 +80,29 @@ function resizeGame() {
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
-    if (screenWidth <= 0 || screenHeight <= 0) {
-        return;
-    }
-
     /*
-     * Keep vertical gameplay scale constant.
+     * Scale the fixed 900x600 game viewport
+     * until it completely covers the screen.
      *
-     * Height = 600 world units.
+     * We use Math.max instead of Math.min.
      *
-     * Width changes according to the device's
-     * aspect ratio.
+     * This means:
+     * - no stretching
+     * - no extra gameplay visibility
+     * - no black playable areas
+     * - extreme aspect ratios get cropped
      */
-    camera.height = BASE_HEIGHT;
 
-    camera.width =
-        BASE_HEIGHT *
-        (screenWidth / screenHeight);
-
-    /*
-     * Don't allow the camera to become larger
-     * than the entire world.
-     */
-    camera.width = Math.min(
-        camera.width,
-        WORLD_WIDTH
+    const scale = Math.max(
+        screenWidth / VIEW_WIDTH,
+        screenHeight / VIEW_HEIGHT
     );
 
-    camera.height = Math.min(
-        camera.height,
-        WORLD_HEIGHT
-    );
+    canvas.style.width =
+        `${VIEW_WIDTH * scale}px`;
 
-    /*
-     * IMPORTANT:
-     * The actual canvas drawing resolution now
-     * matches the camera.
-     */
-    canvas.width = Math.ceil(camera.width);
-    canvas.height = Math.ceil(camera.height);
+    canvas.style.height =
+        `${VIEW_HEIGHT * scale}px`;
 }
 
 window.addEventListener(
@@ -118,7 +113,7 @@ window.addEventListener(
 resizeGame();
 
 // ==================================================
-// KEYBOARD INPUT
+// KEYBOARD MOVEMENT
 // ==================================================
 
 function updateKeyboardInput() {
@@ -142,6 +137,7 @@ function updateKeyboardInput() {
         y += 1;
     }
 
+    // Normalize diagonal movement
     if (x !== 0 || y !== 0) {
 
         const length =
@@ -174,8 +170,11 @@ function updateJoystick(clientX, clientY) {
     const centerY =
         rect.top + rect.height / 2;
 
-    let dx = clientX - centerX;
-    let dy = clientY - centerY;
+    let dx =
+        clientX - centerX;
+
+    let dy =
+        clientY - centerY;
 
     const distance =
         Math.sqrt(dx * dx + dy * dy);
@@ -266,14 +265,12 @@ function updatePlayer() {
     updateKeyboardInput();
 
     player.x +=
-        input.x *
-        player.speed;
+        input.x * player.speed;
 
     player.y +=
-        input.y *
-        player.speed;
+        input.y * player.speed;
 
-    // World boundaries
+    // Keep player inside world
 
     player.x = Math.max(
         0,
@@ -298,6 +295,8 @@ function updatePlayer() {
 
 function updateCamera() {
 
+    // Keep player near the center
+
     camera.x =
         player.x +
         player.width / 2 -
@@ -308,7 +307,7 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
-    // World boundaries
+    // Stop camera at world boundaries
 
     camera.x = Math.max(
         0,
@@ -340,8 +339,8 @@ function drawWorld() {
     ctx.fillRect(
         0,
         0,
-        canvas.width,
-        canvas.height
+        VIEW_WIDTH,
+        VIEW_HEIGHT
     );
 
     // Grid
@@ -361,6 +360,8 @@ function drawWorld() {
         Math.floor(camera.y / gridSize) *
         gridSize;
 
+    // Vertical lines
+
     for (
         let x = startX;
         x <= camera.x + camera.width;
@@ -379,11 +380,13 @@ function drawWorld() {
 
         ctx.lineTo(
             screenX,
-            camera.height
+            VIEW_HEIGHT
         );
 
         ctx.stroke();
     }
+
+    // Horizontal lines
 
     for (
         let y = startY;
@@ -402,7 +405,7 @@ function drawWorld() {
         );
 
         ctx.lineTo(
-            camera.width,
+            VIEW_WIDTH,
             screenY
         );
 
