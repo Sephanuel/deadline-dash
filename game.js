@@ -371,6 +371,42 @@ const submissionDesk = {
 };
 
 // ==================================================
+// CAMPUS OBSTACLES
+// ==================================================
+
+const obstacles = [
+
+    {
+        x: 700,
+        y: 300,
+        width: 160,
+        height: 40
+    },
+
+    {
+        x: 1050,
+        y: 300,
+        width: 140,
+        height: 40
+    },
+
+    {
+        x: 700,
+        y: 700,
+        width: 180,
+        height: 40
+    },
+
+    {
+        x: 1100,
+        y: 700,
+        width: 120,
+        height: 40
+    }
+
+];
+
+// ==================================================
 // MINI GAME
 // ==================================================
 
@@ -869,6 +905,9 @@ function updatePlayer() {
 
     updateKeyboardInput();
 
+
+    // Calculate next position
+
     let nextX =
         player.x +
         input.x * player.speed;
@@ -877,6 +916,66 @@ function updatePlayer() {
         player.y +
         input.y * player.speed;
 
+
+    // ==================================================
+    // WORLD BOUNDARIES
+    // ==================================================
+
+    nextX = Math.max(
+        0,
+        nextX
+    );
+
+    nextX = Math.min(
+        WORLD_WIDTH - player.width,
+        nextX
+    );
+
+    nextY = Math.max(
+        0,
+        nextY
+    );
+
+    nextY = Math.min(
+        WORLD_HEIGHT - player.height,
+        nextY
+    );
+
+
+    // ==================================================
+    // OBSTACLE COLLISION
+    // ==================================================
+
+    let blocked = false;
+
+
+    for (const obstacle of obstacles) {
+
+        const collision =
+            nextX < obstacle.x + obstacle.width &&
+            nextX + player.width > obstacle.x &&
+            nextY < obstacle.y + obstacle.height &&
+            nextY + player.height > obstacle.y;
+
+
+        if (collision) {
+
+            blocked = true;
+
+            break;
+        }
+    }
+
+
+    // Only move if there is no collision
+
+    if (!blocked) {
+
+        player.x = nextX;
+
+        player.y = nextY;
+    }
+}
 
     // ==================================================
     // WORLD BOUNDARIES
@@ -1130,6 +1229,49 @@ function drawWorkstation() {
 }
 
 // ==================================================
+// DRAW CAMPUS OBSTACLES
+// ==================================================
+
+function drawObstacles() {
+
+    for (const obstacle of obstacles) {
+
+        const screenX =
+            obstacle.x - camera.x;
+
+        const screenY =
+            obstacle.y - camera.y;
+
+
+        // Main obstacle
+
+        ctx.fillStyle = "#4b5563";
+
+        ctx.fillRect(
+            screenX,
+            screenY,
+            obstacle.width,
+            obstacle.height
+        );
+
+
+        // Border
+
+        ctx.strokeStyle = "#ffffff";
+
+        ctx.lineWidth = 2;
+
+        ctx.strokeRect(
+            screenX,
+            screenY,
+            obstacle.width,
+            obstacle.height
+        );
+
+    }
+}
+
+// ==================================================
 // DRAW SUBMISSION DESK
 // ==================================================
 
@@ -1360,6 +1502,8 @@ function drawUI() {
 function draw() {
 
     drawWorld();
+
+    drawObstacles();
 
     drawAssignment();
 
