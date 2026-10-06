@@ -8,25 +8,10 @@ const joystickKnob = document.getElementById("joystick-knob");
 // GAME SETTINGS
 // ==================================================
 
-// Base gameplay resolution.
-// This controls the actual gameplay scale.
-const BASE_WIDTH = 900;
 const BASE_HEIGHT = 600;
 
-// Larger world than the visible screen.
 const WORLD_WIDTH = 2400;
 const WORLD_HEIGHT = 1600;
-
-// Camera zoom.
-// 1 = normal gameplay scale.
-const CAMERA_ZOOM = 1;
-
-// ==================================================
-// CANVAS
-// ==================================================
-
-canvas.width = BASE_WIDTH;
-canvas.height = BASE_HEIGHT;
 
 // ==================================================
 // INPUT
@@ -40,8 +25,6 @@ const input = {
 };
 
 let joystickActive = false;
-
-// Keyboard
 
 window.addEventListener("keydown", (event) => {
     keys[event.key.toLowerCase()] = true;
@@ -73,52 +56,41 @@ const camera = {
     x: 0,
     y: 0,
 
-    width: BASE_WIDTH,
+    width: 900,
     height: BASE_HEIGHT
 };
 
 // ==================================================
-// RESPONSIVE CAMERA
+// RESIZE CAMERA + CANVAS
 // ==================================================
 
-function updateCameraSize() {
+function resizeGame() {
 
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
 
-    // Keep gameplay scale consistent.
-    const screenRatio =
-        screenWidth / screenHeight;
-
-    const baseRatio =
-        BASE_WIDTH / BASE_HEIGHT;
-
-    if (screenRatio > baseRatio) {
-
-        // Wider screen.
-        // Increase horizontal view without
-        // changing vertical gameplay scale.
-
-        camera.height = BASE_HEIGHT;
-
-        camera.width =
-            BASE_HEIGHT * screenRatio;
-
-    } else {
-
-        // Taller/narrower screen.
-        // Increase vertical view without
-        // changing horizontal gameplay scale.
-
-        camera.width = BASE_WIDTH;
-
-        camera.height =
-            BASE_WIDTH / screenRatio;
+    if (screenWidth <= 0 || screenHeight <= 0) {
+        return;
     }
 
-    // Prevent camera from becoming
-    // larger than the entire world.
+    /*
+     * Keep vertical gameplay scale constant.
+     *
+     * Height = 600 world units.
+     *
+     * Width changes according to the device's
+     * aspect ratio.
+     */
+    camera.height = BASE_HEIGHT;
 
+    camera.width =
+        BASE_HEIGHT *
+        (screenWidth / screenHeight);
+
+    /*
+     * Don't allow the camera to become larger
+     * than the entire world.
+     */
     camera.width = Math.min(
         camera.width,
         WORLD_WIDTH
@@ -128,16 +100,22 @@ function updateCameraSize() {
         camera.height,
         WORLD_HEIGHT
     );
-}
 
-// Update when screen size changes.
+    /*
+     * IMPORTANT:
+     * The actual canvas drawing resolution now
+     * matches the camera.
+     */
+    canvas.width = Math.ceil(camera.width);
+    canvas.height = Math.ceil(camera.height);
+}
 
 window.addEventListener(
     "resize",
-    updateCameraSize
+    resizeGame
 );
 
-updateCameraSize();
+resizeGame();
 
 // ==================================================
 // KEYBOARD INPUT
@@ -288,10 +266,12 @@ function updatePlayer() {
     updateKeyboardInput();
 
     player.x +=
-        input.x * player.speed;
+        input.x *
+        player.speed;
 
     player.y +=
-        input.y * player.speed;
+        input.y *
+        player.speed;
 
     // World boundaries
 
@@ -328,7 +308,7 @@ function updateCamera() {
         player.height / 2 -
         camera.height / 2;
 
-    // Keep camera inside world.
+    // World boundaries
 
     camera.x = Math.max(
         0,
@@ -353,13 +333,15 @@ function updateCamera() {
 
 function drawWorld() {
 
+    // Background
+
     ctx.fillStyle = "#20242b";
 
     ctx.fillRect(
         0,
         0,
-        BASE_WIDTH,
-        BASE_HEIGHT
+        canvas.width,
+        canvas.height
     );
 
     // Grid
@@ -381,7 +363,7 @@ function drawWorld() {
 
     for (
         let x = startX;
-        x < camera.x + camera.width;
+        x <= camera.x + camera.width;
         x += gridSize
     ) {
 
@@ -397,7 +379,7 @@ function drawWorld() {
 
         ctx.lineTo(
             screenX,
-            BASE_HEIGHT
+            camera.height
         );
 
         ctx.stroke();
@@ -405,7 +387,7 @@ function drawWorld() {
 
     for (
         let y = startY;
-        y < camera.y + camera.height;
+        y <= camera.y + camera.height;
         y += gridSize
     ) {
 
@@ -420,7 +402,7 @@ function drawWorld() {
         );
 
         ctx.lineTo(
-            BASE_WIDTH,
+            camera.width,
             screenY
         );
 
@@ -468,65 +450,16 @@ function drawUI() {
 }
 
 // ==================================================
-// RENDER
+// DRAW
 // ==================================================
 
-function render() {
-
-    /*
-        Scale the base game to the available
-        screen while preserving its aspect ratio.
-    */
-
-    const screenWidth =
-        window.innerWidth;
-
-    const screenHeight =
-        window.innerHeight;
-
-    const scale =
-        Math.min(
-            screenWidth / BASE_WIDTH,
-            screenHeight / BASE_HEIGHT
-        );
-
-    const displayWidth =
-        BASE_WIDTH * scale;
-
-    const displayHeight =
-        BASE_HEIGHT * scale;
-
-    const offsetX =
-        (screenWidth - displayWidth) / 2;
-
-    const offsetY =
-        (screenHeight - displayHeight) / 2;
-
-    // Clear actual screen
-
-    ctx.setTransform(
-        1,
-        0,
-        0,
-        1,
-        0,
-        0
-    );
-
-    ctx.clearRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-    );
-
-    // Draw game
+function draw() {
 
     drawWorld();
-    drawPlayer();
-    drawUI();
 
-    // CSS handles final screen scaling.
+    drawPlayer();
+
+    drawUI();
 }
 
 // ==================================================
@@ -539,7 +472,7 @@ function gameLoop() {
 
     updateCamera();
 
-    render();
+    draw();
 
     requestAnimationFrame(
         gameLoop
