@@ -200,9 +200,124 @@ function updateKeyboardInput() {
     }
 }
 
+// ==================================================
+// C ASSIGNMENT QUESTION POOL
+// ==================================================
+
+const cAssignments = [
+
+    {
+        type: "syntax",
+        task: "Find the syntax error",
+        code: `#include <stdio.h>
+
+int main() {
+    int x = 10
+    printf("%d", x);
+    return 0;
+}`,
+        question: "Which line contains the syntax error?",
+        answers: [
+            "Line 1",
+            "Line 2",
+            "Line 3",
+            "Line 4",
+            "Line 5"
+        ],
+        correctAnswer: 3
+    },
+
+
+    {
+        type: "syntax",
+        task: "Find the syntax error",
+        code: `#include <stdio.h>
+
+int main() {
+    int x = 5;
+    printf("%d", x)
+    return 0;
+}`,
+        question: "Which line contains the syntax error?",
+        answers: [
+            "Line 1",
+            "Line 2",
+            "Line 3",
+            "Line 4",
+            "Line 5"
+        ],
+        correctAnswer: 4
+    },
+
+
+    {
+        type: "output",
+        task: "Predict the output",
+        code: `#include <stdio.h>
+
+int main() {
+    int x = 5;
+    printf("%d", x + 2);
+    return 0;
+}`,
+        question: "What will this program print?",
+        answers: [
+            "5",
+            "7",
+            "2",
+            "10"
+        ],
+        correctAnswer: 2
+    },
+
+
+    {
+        type: "output",
+        task: "Predict the output",
+        code: `#include <stdio.h>
+
+int main() {
+    int a = 10;
+    int b = 3;
+    printf("%d", a - b);
+    return 0;
+}`,
+        question: "What will this program print?",
+        answers: [
+            "7",
+            "13",
+            "30",
+            "3"
+        ],
+        correctAnswer: 1
+    },
+
+
+    {
+        type: "logic",
+        task: "Find the logic error",
+        code: `int age = 20;
+
+if (age < 18) {
+    printf("Adult");
+} else {
+    printf("Minor");
+}`,
+        question: "What is wrong with this logic?",
+        answers: [
+            "Nothing",
+            "The conditions are reversed",
+            "age must be float",
+            "printf is invalid"
+        ],
+        correctAnswer: 2
+    }
+
+];
+
 
 // ==================================================
-// ASSIGNMENT
+// CURRENT ASSIGNMENT
 // ==================================================
 
 const assignment = {
@@ -212,15 +327,11 @@ const assignment = {
     completed: false
 };
 
+// ==================================================
+// CURRENT C QUESTION
+// ==================================================
 
-const assignmentObject = {
-    x: 500,
-    y: 400,
-    width: 40,
-    height: 40,
-    collected: false
-};
-
+let currentCAssignment = null;
 
 // ==================================================
 // WORKSTATION
@@ -578,18 +689,92 @@ function openMiniGame() {
 
     miniGameOpen = true;
 
+
+    // Pick a random C assignment
+
+    const randomIndex =
+        Math.floor(
+            Math.random() *
+            cAssignments.length
+        );
+
+
+    currentCAssignment =
+        cAssignments[randomIndex];
+
+
+    // Update assignment information
+
+    assignment.task =
+        currentCAssignment.task;
+
+
     document.getElementById(
-        "mini-game"
-    ).style.display = "flex";
+        "assignment-task"
+    ).textContent =
+        currentCAssignment.task;
+
+
+    // Update code
+
+    document.getElementById(
+        "code-question"
+    ).textContent =
+        currentCAssignment.code;
+
+
+    // Update question
+
+    document.querySelector(
+        ".mini-game-question"
+    ).textContent =
+        currentCAssignment.question;
+
+
+    // Update answer buttons
+
+    const buttons =
+        document.querySelectorAll(
+            "#answer-buttons button"
+        );
+
+
+    buttons.forEach(function (button, index) {
+
+        if (
+            currentCAssignment.answers[index]
+        ) {
+
+            button.style.display = "block";
+
+            button.textContent =
+                currentCAssignment.answers[index];
+
+        } else {
+
+            button.style.display = "none";
+
+        }
+
+    });
+
+
+    // Clear previous result
 
     document.getElementById(
         "mini-game-result"
     ).textContent = "";
+
+
+    // Show mini-game
+
+    document.getElementById(
+        "mini-game"
+    ).style.display = "flex";
 }
 
-
 // ==================================================
-// MINI GAME ANSWER
+// CHECK C ANSWER
 // ==================================================
 
 function checkAnswer(answer) {
@@ -600,12 +785,19 @@ function checkAnswer(answer) {
         );
 
 
-    // Correct answer = Line 3
+    if (!currentCAssignment) {
+        return;
+    }
 
-    if (answer === 3) {
+
+    if (
+        answer ===
+        currentCAssignment.correctAnswer
+    ) {
 
         result.textContent =
-            "Correct! Syntax error found.";
+            "Correct! Assignment completed.";
+
 
         assignment.completed = true;
 
@@ -613,9 +805,11 @@ function checkAnswer(answer) {
 
         workstation.active = false;
 
+
         document.getElementById(
             "assignment-status"
-        ).textContent = "Status: Completed";
+        ).textContent =
+            "Status: Completed";
 
 
         setTimeout(function () {
@@ -637,6 +831,7 @@ function checkAnswer(answer) {
 
     }
 }
+
 // ==================================================
 // PLAYER UPDATE
 // ==================================================
