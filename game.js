@@ -898,7 +898,6 @@ function checkAnswer(answer) {
 
 function updatePlayer() {
 
-    // Stop player movement while mini-game is open
     if (miniGameOpen) {
         return;
     }
@@ -967,7 +966,7 @@ function updatePlayer() {
     }
 
 
-    // Only move if there is no collision
+    // Move only if there is no collision
 
     if (!blocked) {
 
@@ -976,6 +975,7 @@ function updatePlayer() {
         player.y = nextY;
     }
 }
+
 
 // ==================================================
 // CAMERA UPDATE
