@@ -977,36 +977,6 @@ function updatePlayer() {
     }
 }
 
-    // ==================================================
-    // WORLD BOUNDARIES
-    // ==================================================
-
-    nextX = Math.max(
-        0,
-        nextX
-    );
-
-    nextX = Math.min(
-        WORLD_WIDTH - player.width,
-        nextX
-    );
-
-    nextY = Math.max(
-        0,
-        nextY
-    );
-
-    nextY = Math.min(
-        WORLD_HEIGHT - player.height,
-        nextY
-    );
-
-
-    player.x = nextX;
-    player.y = nextY;
-}
-
-
 // ==================================================
 // CAMERA UPDATE
 // ==================================================
