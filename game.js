@@ -376,33 +376,78 @@ const submissionDesk = {
 
 const obstacles = [
 
+    // ==================================================
+// CAMPUS MAP OBSTACLES
+// ==================================================
+
+const obstacles = [
+
+    // -------- CENTRAL BUILDING --------
+
     {
-        x: 700,
-        y: 300,
+        type: "building",
+        x: 650,
+        y: 200,
+        width: 300,
+        height: 180
+    },
+
+
+    // -------- LEFT BENCH --------
+
+    {
+        type: "bench",
+        x: 250,
+        y: 600,
         width: 160,
         height: 40
     },
 
+
+    // -------- RIGHT BENCH --------
+
     {
-        x: 1050,
-        y: 300,
-        width: 140,
+        type: "bench",
+        x: 1250,
+        y: 350,
+        width: 160,
         height: 40
     },
 
-    {
-        x: 700,
-        y: 700,
-        width: 180,
-        height: 40
-    },
+
+    // -------- BOOKSHELF --------
 
     {
-        x: 1100,
-        y: 700,
-        width: 120,
-        height: 40
+        type: "bookshelf",
+        x: 450,
+        y: 850,
+        width: 60,
+        height: 180
+    },
+
+
+    // -------- CLASSROOM BLOCK --------
+
+    {
+        type: "building",
+        x: 1400,
+        y: 650,
+        width: 300,
+        height: 180
+    },
+
+
+    // -------- SMALL WALL --------
+
+    {
+        type: "wall",
+        x: 900,
+        y: 950,
+        width: 250,
+        height: 35
     }
+
+];
 
 ];
 
@@ -1213,30 +1258,199 @@ function drawObstacles() {
             obstacle.y - camera.y;
 
 
-        // Main obstacle
+        // ------------------------------------------
+        // BUILDING
+        // ------------------------------------------
 
-        ctx.fillStyle = "#4b5563";
+        if (obstacle.type === "building") {
 
-        ctx.fillRect(
-            screenX,
-            screenY,
-            obstacle.width,
-            obstacle.height
-        );
+            ctx.fillStyle = "#374151";
+
+            ctx.fillRect(
+                screenX,
+                screenY,
+                obstacle.width,
+                obstacle.height
+            );
 
 
-        // Border
+            ctx.strokeStyle = "#ffffff";
 
-        ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
 
-        ctx.lineWidth = 2;
+            ctx.strokeRect(
+                screenX,
+                screenY,
+                obstacle.width,
+                obstacle.height
+            );
 
-        ctx.strokeRect(
-            screenX,
-            screenY,
-            obstacle.width,
-            obstacle.height
-        );
+
+            // Windows
+
+            ctx.fillStyle = "#38bdf8";
+
+
+            for (
+                let x = screenX + 30;
+                x < screenX + obstacle.width - 20;
+                x += 55
+            ) {
+
+                for (
+                    let y = screenY + 30;
+                    y < screenY + obstacle.height - 20;
+                    y += 55
+                ) {
+
+                    ctx.fillRect(
+                        x,
+                        y,
+                        25,
+                        25
+                    );
+                }
+            }
+
+
+            // Building label
+
+            ctx.fillStyle = "#ffffff";
+
+            ctx.font = "14px Arial";
+
+            ctx.fillText(
+                "BUILDING",
+                screenX + 10,
+                screenY + obstacle.height - 10
+            );
+        }
+
+
+        // ------------------------------------------
+        // BENCH
+        // ------------------------------------------
+
+        else if (obstacle.type === "bench") {
+
+            ctx.fillStyle = "#92400e";
+
+            ctx.fillRect(
+                screenX,
+                screenY + 8,
+                obstacle.width,
+                12
+            );
+
+
+            ctx.fillRect(
+                screenX,
+                screenY + 25,
+                obstacle.width,
+                10
+            );
+
+
+            // Legs
+
+            ctx.fillRect(
+                screenX + 15,
+                screenY + 35,
+                10,
+                8
+            );
+
+            ctx.fillRect(
+                screenX + obstacle.width - 25,
+                screenY + 35,
+                10,
+                8
+            );
+        }
+
+
+        // ------------------------------------------
+        // BOOKSHELF
+        // ------------------------------------------
+
+        else if (obstacle.type === "bookshelf") {
+
+            ctx.fillStyle = "#7c2d12";
+
+            ctx.fillRect(
+                screenX,
+                screenY,
+                obstacle.width,
+                obstacle.height
+            );
+
+
+            ctx.strokeStyle = "#ffffff";
+
+            ctx.lineWidth = 2;
+
+            ctx.strokeRect(
+                screenX,
+                screenY,
+                obstacle.width,
+                obstacle.height
+            );
+
+
+            // Shelf lines
+
+            ctx.strokeStyle = "#fbbf24";
+
+            for (
+                let y = screenY + 35;
+                y < screenY + obstacle.height;
+                y += 40
+            ) {
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    screenX,
+                    y
+                );
+
+                ctx.lineTo(
+                    screenX + obstacle.width,
+                    y
+                );
+
+                ctx.stroke();
+            }
+        }
+
+
+        // ------------------------------------------
+        // WALL
+        // ------------------------------------------
+
+        else if (obstacle.type === "wall") {
+
+            ctx.fillStyle = "#6b7280";
+
+            ctx.fillRect(
+                screenX,
+                screenY,
+                obstacle.width,
+                obstacle.height
+            );
+
+
+            ctx.strokeStyle = "#ffffff";
+
+            ctx.lineWidth = 2;
+
+            ctx.strokeRect(
+                screenX,
+                screenY,
+                obstacle.width,
+                obstacle.height
+            );
+        }
 
     }
 }
@@ -1442,6 +1656,62 @@ function drawObjectiveArrow() {
     ctx.restore();
 }
 
+// ==================================================
+// DRAW LOCATION LABELS
+// ==================================================
+
+function drawLocationLabels() {
+
+    // Workstation label
+
+    const workX =
+        workstation.x - camera.x;
+
+    const workY =
+        workstation.y - camera.y;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 14px Arial";
+
+    ctx.fillText(
+        "WORKSTATION",
+        workX - 15,
+        workY - 10
+    );
+
+
+    // Submission desk label
+
+    const submitX =
+        submissionDesk.x - camera.x;
+
+    const submitY =
+        submissionDesk.y - camera.y;
+
+    ctx.fillText(
+        "SUBMISSION",
+        submitX - 10,
+        submitY - 10
+    );
+
+
+    // Assignment label
+
+    if (!assignmentObject.collected) {
+
+        const assignmentX =
+            assignmentObject.x - camera.x;
+
+        const assignmentY =
+            assignmentObject.y - camera.y;
+
+        ctx.fillText(
+            "ASSIGNMENT",
+            assignmentX - 5,
+            assignmentY - 10
+        );
+    }
+}
 
 // ==================================================
 // GAME UI
@@ -1480,6 +1750,8 @@ function draw() {
     drawWorkstation();
 
     drawSubmissionDesk();
+
+    drawLocationLabels();
 
     drawPlayer();
 
