@@ -1794,6 +1794,9 @@ if (window.visualViewport) {
 
 resizeGame();
 
+function startGame() {
+    document.getElementById("instructions-screen").style.display = "none";
+}
 
 // ==================================================
 // GAME LOOP
