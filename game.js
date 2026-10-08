@@ -1868,6 +1868,22 @@ function startGame() {
     document.getElementById("instructions-screen").style.display = "none";
 }
 
+function startGame() {
+    const instructionsScreen =
+        document.getElementById("instructions-screen");
+
+    if (instructionsScreen) {
+        instructionsScreen.style.display = "none";
+    }
+}
+
+const startButton =
+    document.getElementById("start-game-button");
+
+if (startButton) {
+    startButton.addEventListener("click", startGame);
+}
+
 // ==================================================
 // GAME LOOP
 // ==================================================
