@@ -63,6 +63,8 @@ const keys = {};
 const joystick = document.getElementById("joystick");
 const joystickKnob = document.getElementById("joystick-knob");
 
+let joystickActive = false;
+
 if (joystick && joystickKnob) {
 
     let joystickActive = false;
@@ -171,12 +173,7 @@ window.addEventListener("keyup", function (event) {
 
 
 function updateKeyboardInput() {
-
-    // Don't overwrite joystick input
-    if (
-        input.x !== 0 ||
-        input.y !== 0
-    ) {
+    if (joystickActive) {
         return;
     }
 
@@ -199,7 +196,6 @@ function updateKeyboardInput() {
         input.x = 1;
     }
 }
-
 // ==================================================
 // C ASSIGNMENT QUESTION POOL
 // ==================================================
@@ -916,24 +912,98 @@ function checkAnswer(answer) {
 // ==================================================
 
 function updatePlayer() {
-
     if (miniGameOpen) {
         return;
     }
 
     updateKeyboardInput();
 
+    let moveX = input.x;
+    let moveY = input.y;
 
-    // Calculate next position
+    // Prevent diagonal movement from being faster
+    const length = Math.sqrt(
+        moveX * moveX +
+        moveY * moveY
+    );
 
+    if (length > 1) {
+        moveX /= length;
+        moveY /= length;
+    }
+
+    // Calculate movement
     let nextX =
         player.x +
-        input.x * player.speed;
+        moveX * player.speed;
 
     let nextY =
         player.y +
-        input.y * player.speed;
+        moveY * player.speed;
 
+    // World boundaries
+    nextX = Math.max(
+        0,
+        Math.min(
+            WORLD_WIDTH - player.width,
+            nextX
+        )
+    );
+
+    nextY = Math.max(
+        0,
+        Math.min(
+            WORLD_HEIGHT - player.height,
+            nextY
+        )
+    );
+
+    // ------------------------------------------
+    // X COLLISION
+    // ------------------------------------------
+
+    let blockedX = false;
+
+    for (const obstacle of obstacles) {
+        const collision =
+            nextX < obstacle.x + obstacle.width &&
+            nextX + player.width > obstacle.x &&
+            player.y < obstacle.y + obstacle.height &&
+            player.y + player.height > obstacle.y;
+
+        if (collision) {
+            blockedX = true;
+            break;
+        }
+    }
+
+    if (!blockedX) {
+        player.x = nextX;
+    }
+
+    // ------------------------------------------
+    // Y COLLISION
+    // ------------------------------------------
+
+    let blockedY = false;
+
+    for (const obstacle of obstacles) {
+        const collision =
+            player.x < obstacle.x + obstacle.width &&
+            player.x + player.width > obstacle.x &&
+            nextY < obstacle.y + obstacle.height &&
+            nextY + player.height > obstacle.y;
+
+        if (collision) {
+            blockedY = true;
+            break;
+        }
+    }
+
+    if (!blockedY) {
+        player.y = nextY;
+    }
+}
 
     // ==================================================
     // WORLD BOUNDARIES
