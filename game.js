@@ -67,8 +67,6 @@ let joystickActive = false;
 
 if (joystick && joystickKnob) {
 
-    let joystickActive = false;
-
     function updateJoystick(touch) {
 
         const rect = joystick.getBoundingClientRect();
@@ -932,36 +930,14 @@ function updatePlayer() {
         moveY /= length;
     }
 
-    // Calculate movement
-    let nextX =
-        player.x +
-        moveX * player.speed;
-
-    let nextY =
-        player.y +
-        moveY * player.speed;
+    let nextX = player.x + moveX * player.speed;
+    let nextY = player.y + moveY * player.speed;
 
     // World boundaries
-    nextX = Math.max(
-        0,
-        Math.min(
-            WORLD_WIDTH - player.width,
-            nextX
-        )
-    );
+    nextX = Math.max(0, Math.min(WORLD_WIDTH - player.width, nextX));
+    nextY = Math.max(0, Math.min(WORLD_HEIGHT - player.height, nextY));
 
-    nextY = Math.max(
-        0,
-        Math.min(
-            WORLD_HEIGHT - player.height,
-            nextY
-        )
-    );
-
-    // ------------------------------------------
-    // X COLLISION
-    // ------------------------------------------
-
+    // X collision
     let blockedX = false;
 
     for (const obstacle of obstacles) {
@@ -981,10 +957,7 @@ function updatePlayer() {
         player.x = nextX;
     }
 
-    // ------------------------------------------
-    // Y COLLISION
-    // ------------------------------------------
-
+    // Y collision
     let blockedY = false;
 
     for (const obstacle of obstacles) {
@@ -1001,66 +974,6 @@ function updatePlayer() {
     }
 
     if (!blockedY) {
-        player.y = nextY;
-    }
-}
-
-    // ==================================================
-    // WORLD BOUNDARIES
-    // ==================================================
-
-    nextX = Math.max(
-        0,
-        nextX
-    );
-
-    nextX = Math.min(
-        WORLD_WIDTH - player.width,
-        nextX
-    );
-
-    nextY = Math.max(
-        0,
-        nextY
-    );
-
-    nextY = Math.min(
-        WORLD_HEIGHT - player.height,
-        nextY
-    );
-
-
-    // ==================================================
-    // OBSTACLE COLLISION
-    // ==================================================
-
-    let blocked = false;
-
-
-    for (const obstacle of obstacles) {
-
-        const collision =
-            nextX < obstacle.x + obstacle.width &&
-            nextX + player.width > obstacle.x &&
-            nextY < obstacle.y + obstacle.height &&
-            nextY + player.height > obstacle.y;
-
-
-        if (collision) {
-
-            blocked = true;
-
-            break;
-        }
-    }
-
-
-    // Move only if there is no collision
-
-    if (!blocked) {
-
-        player.x = nextX;
-
         player.y = nextY;
     }
 }
@@ -1863,10 +1776,6 @@ if (window.visualViewport) {
 
 
 resizeGame();
-
-function startGame() {
-    document.getElementById("instructions-screen").style.display = "none";
-}
 
 function startGame() {
     const instructionsScreen =
