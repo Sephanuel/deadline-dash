@@ -325,6 +325,7 @@ const assignment = {
     task: "Find the syntax error",
     status: "Not Started",
     completed: false
+    playerAnswerCorrect: false
 };
 
 // ==================================================
@@ -527,14 +528,17 @@ function startDeadlineTimer() {
 // ==================================================
 
 function handleDeadlineMissed() {
-
+function handleDeadlineMissed() {
     timeLeft = 0;
-
     updateTimerDisplay();
 
-    document.getElementById(
-        "lose-screen"
-    ).style.display = "flex";
+    document.getElementById("lose-title").textContent =
+        "DEADLINE MISSED!";
+
+    document.getElementById("lose-message").textContent =
+        "You ran out of time.";
+
+    document.getElementById("lose-screen").style.display = "flex";
 }
 
 // ==================================================
@@ -637,11 +641,7 @@ function checkWorkstationInteraction() {
 // ==================================================
 
 function checkSubmissionInteraction() {
-
-    // Assignment must be completed first
-    if (!assignment.completed) {
-        return;
-    }
+    if (!assignment.completed) return;
 
     const touching =
         player.x < submissionDesk.x + submissionDesk.width &&
@@ -650,16 +650,24 @@ function checkSubmissionInteraction() {
         player.y + player.height > submissionDesk.y;
 
     if (touching) {
-
         submissionDesk.active = true;
 
-        assignment.status = "Submitted";
+        if (assignment.playerAnswerCorrect) {
+            assignment.status = "Submitted";
 
-        document.getElementById(
-            "assignment-status"
-        ).textContent = "Status: Submitted";
+            document.getElementById("assignment-status").textContent =
+                "Status: Submitted";
 
-        showWinScreen();
+            showWinScreen();
+        } else {
+            document.getElementById("lose-title").textContent =
+    "WRONG ANSWER!";
+
+document.getElementById("lose-message").textContent =
+    "Your answer was incorrect. The assignment cannot be submitted.";
+
+document.getElementById("lose-screen").style.display = "flex";
+        }
     }
 }
 
@@ -715,6 +723,8 @@ updateTimerDisplay();
     assignment.status = "Not Started";
 
     assignment.completed = false;
+
+    assignment.playerAnswerCorrect = false;
 
 
     // Reset assignment object
@@ -876,58 +886,24 @@ currentCAssignment =
 // ==================================================
 
 function checkAnswer(answer) {
+    const result = document.getElementById("mini-game-result");
 
-    const result =
-        document.getElementById(
-            "mini-game-result"
-        );
+    if (!currentCAssignment) return;
 
+    assignment.completed = true;
 
-    if (!currentCAssignment) {
-        return;
+    if (answer === currentCAssignment.correctAnswer) {
+        assignment.playerAnswerCorrect = true;
+        result.textContent = "Answer recorded.";
+    } else {
+        assignment.playerAnswerCorrect = false;
+        result.textContent = "Answer recorded.";
     }
 
-
-    if (
-        answer ===
-        currentCAssignment.correctAnswer
-    ) {
-
-        result.textContent =
-            "Correct! Assignment completed.";
-
-
-        assignment.completed = true;
-
-        assignment.status = "Completed";
-
-        workstation.active = false;
-
-
-        document.getElementById(
-            "assignment-status"
-        ).textContent =
-            "Status: Completed";
-
-
-        setTimeout(function () {
-
-            document.getElementById(
-                "mini-game"
-            ).style.display = "none";
-
-            miniGameOpen = false;
-
-        }, 1000);
-
-    }
-
-    else {
-
-        result.textContent =
-            "Wrong answer. Try again.";
-
-    }
+    setTimeout(function () {
+        document.getElementById("mini-game").style.display = "none";
+        miniGameOpen = false;
+    }, 500);
 }
 
 // ==================================================
