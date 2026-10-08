@@ -324,7 +324,7 @@ const assignment = {
     subject: "C Programming",
     task: "Find the syntax error",
     status: "Not Started",
-    completed: false
+    completed: false,
     playerAnswerCorrect: false
 };
 
@@ -528,7 +528,6 @@ function startDeadlineTimer() {
 // ==================================================
 
 function handleDeadlineMissed() {
-function handleDeadlineMissed() {
     timeLeft = 0;
     updateTimerDisplay();
 
@@ -659,14 +658,20 @@ function checkSubmissionInteraction() {
                 "Status: Submitted";
 
             showWinScreen();
+
         } else {
+            assignment.status = "Wrong Answer";
+
+            document.getElementById("assignment-status").textContent =
+                "Status: Wrong Answer";
+
             document.getElementById("lose-title").textContent =
-    "WRONG ANSWER!";
+                "WRONG ANSWER!";
 
-document.getElementById("lose-message").textContent =
-    "Your answer was incorrect. The assignment cannot be submitted.";
+            document.getElementById("lose-message").textContent =
+                "Your answer was incorrect. The assignment cannot be submitted.";
 
-document.getElementById("lose-screen").style.display = "flex";
+            document.getElementById("lose-screen").style.display = "flex";
         }
     }
 }
