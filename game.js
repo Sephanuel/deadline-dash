@@ -1027,68 +1027,111 @@ function updateCamera() {
 // ==================================================
 
 function drawWorld() {
+    // Grass base
+    ctx.fillStyle = "#4f8d45";
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    ctx.fillStyle = "#1b1f24";
+    // Subtle grass texture, positioned in world space so it moves with the camera.
+    const tile = 48;
+    const startX = -((camera.x % tile) + tile) % tile;
+    const startY = -((camera.y % tile) + tile) % tile;
 
-    ctx.fillRect(
-        0,
-        0,
-        GAME_WIDTH,
-        GAME_HEIGHT
-    );
-
-
-    const gridSize = 50;
-
-    ctx.strokeStyle = "#2c323a";
-    ctx.lineWidth = 1;
-
-
-    const startX =
-        -(camera.x % gridSize);
-
-    const startY =
-        -(camera.y % gridSize);
-
-
-    for (
-        let x = startX;
-        x < GAME_WIDTH;
-        x += gridSize
-    ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(x, 0);
-
-        ctx.lineTo(
-            x,
-            GAME_HEIGHT
-        );
-
-        ctx.stroke();
+    for (let y = startY; y < GAME_HEIGHT; y += tile) {
+        for (let x = startX; x < GAME_WIDTH; x += tile) {
+            const worldX = x + camera.x;
+            const worldY = y + camera.y;
+            const seed = Math.abs(Math.floor(worldX * 17 + worldY * 31)) % 7;
+            ctx.fillStyle = seed < 3 ? "rgba(25, 85, 38, 0.10)" : "rgba(215, 240, 160, 0.07)";
+            ctx.fillRect(x + (seed * 3), y + ((seed * 5) % 19), 13, 3);
+        }
     }
 
+    // Small campus courtyard lawn near the central building.
+    ctx.fillStyle = "#5a994b";
+    ctx.fillRect(520 - camera.x, 170 - camera.y, 500, 285);
 
-    for (
-        let y = startY;
-        y < GAME_HEIGHT;
-        y += gridSize
-    ) {
+    // Main paved pedestrian paths. These are visual only; movement/collision is unchanged.
+    const pathRects = [
+        { x: 0, y: 465, w: WORLD_WIDTH, h: 82 },       // main east-west path
+        { x: 1010, y: 0, w: 82, h: WORLD_HEIGHT },     // north-south spine
+        { x: 475, y: 385, w: 70, h: 130 },            // assignment pickup branch
+        { x: 760, y: 365, w: 70, h: 135 },            // central building entrance
+        { x: 1495, y: 805, w: 70, h: 180 },           // classroom entrance
+        { x: 1060, y: 875, w: 470, h: 70 },           // lower garden walkway
+        { x: 1450, y: 945, w: 82, h: 250 },           // garden connection
+        { x: 1810, y: 465, w: 70, h: 320 },           // east campus connection
+        { x: 1780, y: 745, w: 360, h: 70 }            // east-side path
+    ];
 
-        ctx.beginPath();
-
-        ctx.moveTo(0, y);
-
-        ctx.lineTo(
-            GAME_WIDTH,
-            y
-        );
-
-        ctx.stroke();
+    for (const path of pathRects) {
+        const x = path.x - camera.x;
+        const y = path.y - camera.y;
+        ctx.fillStyle = "#c8bfa4";
+        ctx.fillRect(x, y, path.w, path.h);
+        ctx.fillStyle = "#e2d9c2";
+        ctx.fillRect(x + 5, y + 5, Math.max(0, path.w - 10), Math.max(0, path.h - 10));
+        ctx.strokeStyle = "rgba(105, 91, 68, 0.22)";
+        ctx.lineWidth = 1;
+        if (path.w > path.h) {
+            for (let px = x + 24; px < x + path.w; px += 48) {
+                ctx.beginPath(); ctx.moveTo(px, y + 7); ctx.lineTo(px, y + path.h - 7); ctx.stroke();
+            }
+        } else {
+            for (let py = y + 24; py < y + path.h; py += 48) {
+                ctx.beginPath(); ctx.moveTo(x + 7, py); ctx.lineTo(x + path.w - 7, py); ctx.stroke();
+            }
+        }
     }
+
+    // Small paved plaza around the student work/submission zone.
+    ctx.fillStyle = "#b7ad95";
+    ctx.fillRect(830 - camera.x, 445 - camera.y, 505, 125);
+    ctx.fillStyle = "#d7cfba";
+    ctx.fillRect(838 - camera.x, 453 - camera.y, 489, 109);
+
+    // Repaint the route over the plaza so it reads as one continuous walkway.
+    ctx.fillStyle = "#e2d9c2";
+    ctx.fillRect(830 - camera.x, 465 - camera.y, 505, 82);
 }
 
+
+// ==================================================
+// DECORATIVE CAMPUS TREES (visual only; gameplay collision is unchanged)
+// ==================================================
+
+const campusTrees = [
+    { x: 110, y: 150 }, { x: 210, y: 250 }, { x: 130, y: 760 },
+    { x: 190, y: 980 }, { x: 330, y: 1160 }, { x: 560, y: 1250 },
+    { x: 690, y: 1050 }, { x: 760, y: 1200 }, { x: 1180, y: 180 },
+    { x: 1320, y: 210 }, { x: 1550, y: 160 }, { x: 1720, y: 250 },
+    { x: 1950, y: 180 }, { x: 2150, y: 280 }, { x: 2260, y: 560 },
+    { x: 2180, y: 1030 }, { x: 2020, y: 1190 }, { x: 1780, y: 1320 },
+    { x: 1240, y: 1240 }, { x: 980, y: 1320 }, { x: 620, y: 700 },
+    { x: 1350, y: 520 }, { x: 1680, y: 520 }, { x: 1950, y: 900 }
+];
+
+function drawCampusTrees() {
+    for (const tree of campusTrees) {
+        const x = tree.x - camera.x;
+        const y = tree.y - camera.y;
+        if (x < -45 || y < -45 || x > GAME_WIDTH + 45 || y > GAME_HEIGHT + 45) continue;
+
+        // Soft ground shadow, trunk, and layered canopy.
+        ctx.fillStyle = "rgba(28, 45, 25, 0.25)";
+        ctx.beginPath(); ctx.ellipse(x + 4, y + 10, 21, 12, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#765238";
+        ctx.fillRect(x - 4, y + 1, 9, 17);
+        ctx.fillStyle = "#24633b";
+        ctx.beginPath(); ctx.arc(x - 5, y - 3, 17, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#2f7a43";
+        ctx.beginPath(); ctx.arc(x + 7, y - 8, 16, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#489653";
+        ctx.beginPath(); ctx.arc(x, y - 13, 11, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "rgba(20, 75, 39, 0.8)";
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, y - 5, 20, 0, Math.PI * 2); ctx.stroke();
+    }
+}
 
 // ==================================================
 // DRAW ASSIGNMENT
@@ -1220,67 +1263,46 @@ function drawObstacles() {
         // ------------------------------------------
 
         if (obstacle.type === "building") {
+            // Shadow and outer walls give buildings a clear top-down footprint.
+            ctx.fillStyle = "rgba(20, 35, 25, 0.22)";
+            ctx.fillRect(screenX + 6, screenY + 7, obstacle.width, obstacle.height);
+            ctx.fillStyle = "#b7b8ad";
+            ctx.fillRect(screenX, screenY, obstacle.width, obstacle.height);
+            ctx.fillStyle = "#dedfd3";
+            ctx.fillRect(screenX + 7, screenY + 7, obstacle.width - 14, obstacle.height - 14);
+            ctx.strokeStyle = "#6e776c";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(screenX, screenY, obstacle.width, obstacle.height);
 
-            ctx.fillStyle = "#374151";
-
-            ctx.fillRect(
-                screenX,
-                screenY,
-                obstacle.width,
-                obstacle.height
-            );
-
-
-            ctx.strokeStyle = "#ffffff";
-
-            ctx.lineWidth = 2;
-
-            ctx.strokeRect(
-                screenX,
-                screenY,
-                obstacle.width,
-                obstacle.height
-            );
-
-
-            // Windows
-
-            ctx.fillStyle = "#38bdf8";
-
-
-            for (
-                let x = screenX + 30;
-                x < screenX + obstacle.width - 20;
-                x += 55
-            ) {
-
-                for (
-                    let y = screenY + 30;
-                    y < screenY + obstacle.height - 20;
-                    y += 55
-                ) {
-
-                    ctx.fillRect(
-                        x,
-                        y,
-                        25,
-                        25
-                    );
+            // Windows in neat rows.
+            for (let x = screenX + 24; x < screenX + obstacle.width - 30; x += 54) {
+                for (let y = screenY + 24; y < screenY + obstacle.height - 38; y += 48) {
+                    ctx.fillStyle = "#507f91";
+                    ctx.fillRect(x, y, 27, 20);
+                    ctx.fillStyle = "#a9d6df";
+                    ctx.fillRect(x + 3, y + 3, 9, 5);
+                    ctx.fillStyle = "#6b8d96";
+                    ctx.fillRect(x + 13, y + 2, 2, 16);
                 }
             }
 
+            // Clearly visible south-facing entrance (visual cue only; collision stays unchanged).
+            const doorX = screenX + obstacle.width / 2 - 18;
+            const doorY = screenY + obstacle.height - 31;
+            ctx.fillStyle = "#79533a";
+            ctx.fillRect(doorX, doorY, 36, 31);
+            ctx.fillStyle = "#c99b65";
+            ctx.fillRect(doorX + 5, doorY + 5, 26, 26);
+            ctx.fillStyle = "#4a3526";
+            ctx.fillRect(doorX + 16, doorY + 5, 4, 26);
+            ctx.fillStyle = "#e5c58a";
+            ctx.beginPath(); ctx.arc(doorX + 26, doorY + 18, 2, 0, Math.PI * 2); ctx.fill();
 
-            // Building label
-
-            ctx.fillStyle = "#ffffff";
-
-            ctx.font = "14px Arial";
-
-            ctx.fillText(
-                "BUILDING",
-                screenX + 10,
-                screenY + obstacle.height - 10
-            );
+            ctx.fillStyle = "#344638";
+            ctx.font = "bold 13px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText(obstacle.x < 1000 ? "MAIN BLOCK" : "CLASSROOMS", screenX + obstacle.width / 2, screenY + obstacle.height - 8);
+            ctx.textAlign = "left";
         }
 
 
@@ -1701,6 +1723,8 @@ function draw() {
     drawWorld();
 
     drawObstacles();
+
+    drawCampusTrees();
 
     drawAssignment();
 
