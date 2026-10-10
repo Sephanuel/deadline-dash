@@ -198,7 +198,7 @@ function updateKeyboardInput() {
 // C ASSIGNMENT QUESTION POOL
 // ==================================================
 
-const Assignments = [
+const cAssignments = [
 
     {
         type: "syntax",
