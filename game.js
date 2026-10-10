@@ -198,7 +198,7 @@ function updateKeyboardInput() {
 // C ASSIGNMENT QUESTION POOL
 // ==================================================
 
-const cAssignments = [
+const Assignments = [
 
     {
         type: "syntax",
@@ -332,6 +332,19 @@ const assignmentObject = {
     width: 40,
     height: 40,
     collected: false
+};
+
+// ==================================================
+// HINT SHEET COLLECTIBLE
+// ==================================================
+
+const hintSheet = {
+    x: 620,
+    y: 450,
+    width: 30,
+    height: 30,
+    collected: false,
+    used: false
 };
 
 // ==================================================
@@ -484,6 +497,26 @@ function checkAssignmentPickup() {
         ).textContent = "Status: Started";
 
         startDeadlineTimer();
+    }
+}
+
+// ==================================================
+// HINT SHEET PICKUP
+// ==================================================
+
+function checkHintSheetPickup() {
+    if (!timerStarted || timerInterval === null) return;
+    if (hintSheet.collected || assignment.completed) return;
+
+    const touching =
+        player.x < hintSheet.x + hintSheet.width &&
+        player.x + player.width > hintSheet.x &&
+        player.y < hintSheet.y + hintSheet.height &&
+        player.y + player.height > hintSheet.y;
+
+    if (touching) {
+        hintSheet.collected = true;
+        console.log("Hint sheet collected!");
     }
 }
 
@@ -730,6 +763,12 @@ updateTimerDisplay();
 
     assignmentObject.collected = false;
 
+    hintSheet.collected = false;
+hintSheet.used = false;
+
+document.getElementById("use-hint-button").style.display = "none";
+document.getElementById("hint-message").style.display = "none";
+
 
     // Reset workstation
 
@@ -880,7 +919,38 @@ currentCAssignment =
     ).style.display = "flex";
 }
 
-// ==================================================
+
+
+// ==================================================// Configure the hint button for this question.
+const hintButton = document.getElementById("use-hint-button");
+const hintMessage = document.getElementById("hint-message");
+
+hintButton.style.display =
+    hintSheet.collected && !hintSheet.used ? "block" : "none";
+
+hintMessage.style.display = "none";
+hintMessage.textContent = "";
+
+hintButton.onclick = function () {
+    if (!hintSheet.collected || hintSheet.used || !currentCAssignment) {
+        return;
+    }
+
+    const hints = {
+        syntax: "Check each statement for missing punctuation, especially semicolons.",
+        output: "Evaluate the expression inside printf before deciding what gets printed.",
+        logic: "Trace the condition carefully and compare it with the intended outcome."
+    };
+
+    hintMessage.textContent =
+        hints[currentCAssignment.type] ||
+        "Read the code one statement at a time and trace what happens.";
+
+    hintMessage.style.display = "block";
+    hintSheet.used = true;
+    hintButton.style.display = "none";
+};
+
 // CHECK C ANSWER
 // ==================================================
 
@@ -1176,6 +1246,38 @@ function drawAssignment() {
     );
 }
 
+// ==================================================
+// DRAW HINT SHEET
+// ==================================================
+
+function drawHintSheet() {
+    if (hintSheet.collected) return;
+
+    const screenX = hintSheet.x - camera.x;
+    const screenY = hintSheet.y - camera.y;
+
+    ctx.font = "28px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    ctx.fillText(
+        "📄",
+        screenX + hintSheet.width / 2,
+        screenY + hintSheet.height / 2
+    );
+
+    ctx.font = "12px sans-serif";
+    ctx.fillStyle = "#ffffff";
+
+    ctx.fillText(
+        "HINT",
+        screenX + hintSheet.width / 2,
+        screenY + hintSheet.height + 12
+    );
+
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+}
 
 // ==================================================
 // DRAW WORKSTATION
@@ -1826,6 +1928,8 @@ function gameLoop() {
     updatePlayer();
 
     checkAssignmentPickup();
+
+    checkHintSheetPickup();
 
     checkWorkstationInteraction();
 
