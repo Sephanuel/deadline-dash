@@ -1830,6 +1830,8 @@ function draw() {
 
     drawAssignment();
 
+    drawHintSheet();
+
     drawWorkstation();
 
     drawSubmissionDesk();
