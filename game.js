@@ -917,11 +917,8 @@ currentCAssignment =
     document.getElementById(
         "mini-game"
     ).style.display = "flex";
-}
 
-
-
-// ==================================================// Configure the hint button for this question.
+    // ==================================================// Configure the hint button for this question.
 const hintButton = document.getElementById("use-hint-button");
 const hintMessage = document.getElementById("hint-message");
 
@@ -950,6 +947,11 @@ hintButton.onclick = function () {
     hintSheet.used = true;
     hintButton.style.display = "none";
 };
+}
+
+
+
+
 
 // CHECK C ANSWER
 // ==================================================
